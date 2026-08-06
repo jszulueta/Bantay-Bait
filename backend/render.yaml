@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: bantay-bait-api
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: HUGGINGFACE_TOKEN
+        sync: false
+      - key: HF_MODEL
+        value: joeddav/xlm-roberta-large-xnli
+      - key: ZERO_SHOT
+        value: "true"
+      - key: ALLOWED_ORIGINS
+        sync: false
