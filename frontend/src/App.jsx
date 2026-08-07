@@ -738,22 +738,6 @@ export default function App() {
 
         </section>
 
-        {/* LOGO STRIP / TRUSTED PLATFORMS */}
-        <section className="text-center space-y-3 pt-2">
-          <p className="text-xs font-semibold text-emerald-400/60 uppercase tracking-widest">
-            {t.trustedByHeader}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 opacity-60 text-emerald-100 font-black text-xs sm:text-sm tracking-wider">
-            <span>GCash</span>
-            <span>Maya</span>
-            <span>BDO Online</span>
-            <span>BPI</span>
-            <span>J&T Express</span>
-            <span>Shopee</span>
-            <span>CICC 1326</span>
-          </div>
-        </section>
-
         {/* MAIN SMS DETECTOR TOOL CONTAINER (Erudia Styled) */}
         <section id="detector" className="space-y-6 pt-4">
           <div className="bg-[#0b382c] border border-[#145d4a] rounded-[32px] p-6 sm:p-8 space-y-6 shadow-2xl relative">
