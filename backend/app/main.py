@@ -13,18 +13,24 @@ Stack (all $0):
 Model note (read this before deploying)
 ----------------------------------------
 The thesis assumes a pre-trained "RoBERTa-Tagalog" model that already ships
-a 3-class (Safe/Spam/Malicious) classification head. In practice, no public
-Hugging Face model is fine-tuned specifically for Philippine SMS-smishing
-3-class classification, and the scope explicitly forbids training/fine-tuning
-one. The free, no-training-required way to hit the same behavior is a
-**zero-shot classification** call against a multilingual NLI model
-(`joeddav/xlm-roberta-large-xnli` by default — handles Tagalog/Taglish/English
-code-switching reasonably well) using natural-language candidate labels.
-This is still "an existing, pre-trained model consumed strictly as an
-external inference service" — consistent with the thesis's Section 10 scope.
-If a purpose-built Tagalog smishing classifier becomes available on the Hub
-later, swap HF_MODEL and set ZERO_SHOT=false to use it as a direct
-text-classification pipeline instead — no other code changes needed.
+a 3-class (Safe/Spam/Malicious) classification head. No public Hugging Face
+model is fine-tuned specifically for Philippine SMS-smishing 3-class
+classification, and the scope explicitly forbids training/fine-tuning one.
+
+IMPORTANT (as of Nov 2025): Hugging Face fully retired the old serverless
+"api-inference.huggingface.co" endpoint — including the zero-shot-classification
+pipeline this file originally used — in favor of "Inference Providers", a
+router at https://router.huggingface.co/v1 that speaks the OpenAI-compatible
+Chat Completions format. There is no free-tier zero-shot-classification
+task anymore. The practical free, no-training-required equivalent is to
+prompt a small free instruction-following chat model
+(`meta-llama/Llama-3.2-3B-Instruct` by default) to return a strict JSON
+verdict. This is still "an existing, pre-trained model consumed strictly
+as an external inference service" — consistent with the thesis's Section 10
+scope — just called through the router's chat-completions shape instead of
+a legacy pipeline. Swap HF_MODEL to any other free chat model on
+https://router.huggingface.co if this one gets rate-limited or deprecated;
+no other code changes needed.
 
 Process Rules implemented (Thesis Table 2):
   PR-01  Input validation: 5-1600 characters
@@ -36,6 +42,7 @@ Process Rules implemented (Thesis Table 2):
 """
 import os
 import re
+import json
 import time
 import logging
 from pathlib import Path
@@ -50,9 +57,8 @@ from pydantic import BaseModel, Field
 # Config (all from environment variables — nothing secret hardcoded)
 # ----------------------------------------------------------------------
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
-HF_MODEL = os.getenv("HF_MODEL", "joeddav/xlm-roberta-large-xnli")
-ZERO_SHOT = os.getenv("ZERO_SHOT", "true").lower() == "true"
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+HF_MODEL = os.getenv("HF_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
+HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 
 # Comma-separated list, e.g. "https://bantay-bait.vercel.app,https://bantay-bait.netlify.app"
 ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
@@ -62,11 +68,16 @@ MAX_LEN = 1600
 MALICIOUS_THRESHOLD = 0.75          # PR-03
 API_TIMEOUT_SECONDS = 4.5           # PR-04 (leaves headroom under the 5s budget)
 
-CANDIDATE_LABELS = {
-    "malicious": "a scam message trying to steal money, passwords, or one-time PINs",
-    "spam": "a promotional or advertising message",
-    "safe": "a normal, legitimate message",
-}
+CLASSIFIER_SYSTEM_PROMPT = (
+    "You are an SMS smishing (SMS phishing) detector for Filipino mobile users. "
+    "Classify the message the user sends into exactly one of three classes:\n"
+    "- \"malicious\": a scam trying to steal money, passwords, OTPs/PINs, or impersonating "
+    "a bank/e-wallet/courier/employer with urgency or a suspicious link.\n"
+    "- \"spam\": promotional/advertising content with no direct fraud attempt.\n"
+    "- \"safe\": a normal, legitimate message (including real OTPs, official notices).\n"
+    "Reply with ONLY a compact JSON object, no markdown, no explanation outside the JSON: "
+    '{"verdict": "malicious"|"spam"|"safe", "confidence": <0.0-1.0>, "reason": "<one short sentence>"}'
+)
 
 # ----------------------------------------------------------------------
 # Logging — NEVER log raw message text (RA 10173 / PR-05)
@@ -169,7 +180,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "model": HF_MODEL, "zero_shot": ZERO_SHOT}
+    return {"status": "ok", "model": HF_MODEL, "provider_router": HF_API_URL}
 
 
 @app.get("/api/v1/samples")
@@ -201,55 +212,64 @@ async def get_samples(limit: int = 6):
     return {"samples": out[:limit]}
 
 
+def _extract_json_object(raw: str) -> dict:
+    """Chat models sometimes wrap JSON in markdown fences or add stray text.
+    Pull out the first {...} block and parse it."""
+    match = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not match:
+        raise ValueError(f"No JSON object found in model output: {raw[:200]!r}")
+    return json.loads(match.group(0))
+
+
 async def call_huggingface(text: str) -> tuple[str, float, int]:
-    """Calls the HF Inference API and returns (verdict_label, confidence, latency_ms).
-    Raises HTTPException on timeout / API error."""
+    """Calls the Hugging Face Inference Providers chat-completions router and
+    returns (verdict_label, confidence, latency_ms). Raises HTTPException on
+    timeout / API error."""
     if not HF_TOKEN:
         raise HTTPException(status_code=503, detail="Server misconfigured: HUGGINGFACE_TOKEN not set.")
 
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "model": HF_MODEL,
+        "messages": [
+            {"role": "system", "content": CLASSIFIER_SYSTEM_PROMPT},
+            {"role": "user", "content": text},
+        ],
+        "temperature": 0.1,
+        "max_tokens": 150,
+    }
     start = time.monotonic()
 
     try:
         async with httpx.AsyncClient(timeout=API_TIMEOUT_SECONDS) as client:
-            if ZERO_SHOT:
-                payload = {
-                    "inputs": text,
-                    "parameters": {
-                        "candidate_labels": list(CANDIDATE_LABELS.values()),
-                        "multi_label": False,
-                    },
-                }
-                resp = await client.post(HF_API_URL, headers=headers, json=payload)
-                resp.raise_for_status()
-                data = resp.json()
-                # {"labels": [...], "scores": [...]}
-                top_label_text = data["labels"][0]
-                top_score = float(data["scores"][0])
-                # map the natural-language label back to safe/spam/malicious
-                inv_map = {v: k for k, v in CANDIDATE_LABELS.items()}
-                verdict = inv_map.get(top_label_text, "spam")
-            else:
-                payload = {"inputs": text}
-                resp = await client.post(HF_API_URL, headers=headers, json=payload)
-                resp.raise_for_status()
-                data = resp.json()
-                # Expected: [[{"label": "...", "score": ...}, ...]]
-                top = max(data[0], key=lambda x: x["score"])
-                verdict = top["label"].lower()
-                top_score = float(top["score"])
+            resp = await client.post(HF_API_URL, headers=headers, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+            content = data["choices"][0]["message"]["content"]
+            parsed = _extract_json_object(content)
+
+            verdict = str(parsed.get("verdict", "spam")).strip().lower()
+            if verdict not in ("safe", "spam", "malicious"):
+                verdict = "spam"
+            confidence = float(parsed.get("confidence", 0.5))
+            confidence = max(0.0, min(1.0, confidence))
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Classification timed out. Please try again.")
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 503:
             raise HTTPException(status_code=503, detail="Model is loading on Hugging Face, please retry in ~20s.")
+        if e.response.status_code == 404:
+            raise HTTPException(status_code=502, detail=f"Model '{HF_MODEL}' is not available on Hugging Face's free router. Try a different HF_MODEL.")
         raise HTTPException(status_code=502, detail=f"Upstream model error: {e.response.status_code}")
+    except (KeyError, IndexError, ValueError, json.JSONDecodeError) as e:
+        logger.error(f"HF response parse failed: {type(e).__name__}")
+        raise HTTPException(status_code=502, detail="Classification service returned an unexpected response.")
     except Exception as e:
         logger.error(f"HF call failed: {type(e).__name__}")
         raise HTTPException(status_code=502, detail="Classification service unavailable.")
 
     latency_ms = int((time.monotonic() - start) * 1000)
-    return verdict, top_score, latency_ms
+    return verdict, confidence, latency_ms
 
 
 @app.post("/api/v1/detect", response_model=DetectResponse)
