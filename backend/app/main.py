@@ -57,7 +57,7 @@ from pydantic import BaseModel, Field
 # Config (all from environment variables — nothing secret hardcoded)
 # ----------------------------------------------------------------------
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
-HF_MODEL = os.getenv("HF_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
+HF_MODEL = os.getenv("HF_MODEL", "Qwen/Qwen2.5-7B-Instruct")
 HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 
 # Comma-separated list, e.g. "https://bantay-bait.vercel.app,https://bantay-bait.netlify.app"
