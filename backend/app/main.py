@@ -1,12 +1,11 @@
-Set-Content -Encoding UTF8 -Path backend\app\main.py -Value @'
 """
-Bantay-Bait Backend â€” FastAPI
+Bantay-Bait Backend — FastAPI
 =============================
 Free-tier production backend for the Bantay-Bait smishing detector.
 
 Stack (all $0):
   - Hosting:  Render.com free Web Service
-  - NLP:      Hugging Face Inference Providers router (serverless) â€” no
+  - NLP:      Hugging Face Inference Providers router (serverless) — no
               model hosting, no GPU, no training/fine-tuning.
   - Storage:  NONE. RA 10173 (Data Privacy Act) compliance = no database,
               no request logging of raw SMS text, nothing persisted.
@@ -342,7 +341,3 @@ async def detect(req: DetectRequest):
         reasons=reasons,
         modelLatencyMs=latency_ms,
         modelUsed=model_used,
-    )
-'@
-
-Write-Output "Done. Verifying..."
