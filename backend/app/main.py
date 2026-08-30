@@ -1,3 +1,4 @@
+Set-Content -Encoding UTF8 -Path backend\app\main.py -Value @'
 """
 Bantay-Bait Backend — FastAPI
 =============================
@@ -5,7 +6,7 @@ Free-tier production backend for the Bantay-Bait smishing detector.
 
 Stack (all $0):
   - Hosting:  Render.com free Web Service
-  - NLP:      Hugging Face Inference API (serverless, free tier) — no
+  - NLP:      Hugging Face Inference Providers router (serverless) — no
               model hosting, no GPU, no training/fine-tuning.
   - Storage:  NONE. RA 10173 (Data Privacy Act) compliance = no database,
               no request logging of raw SMS text, nothing persisted.
@@ -18,27 +19,32 @@ model is fine-tuned specifically for Philippine SMS-smishing 3-class
 classification, and the scope explicitly forbids training/fine-tuning one.
 
 IMPORTANT (as of Nov 2025): Hugging Face fully retired the old serverless
-"api-inference.huggingface.co" endpoint — including the zero-shot-classification
-pipeline this file originally used — in favor of "Inference Providers", a
+"api-inference.huggingface.co" endpoint -- including the zero-shot-classification
+pipeline this file originally used -- in favor of "Inference Providers", a
 router at https://router.huggingface.co/v1 that speaks the OpenAI-compatible
-Chat Completions format. There is no free-tier zero-shot-classification
-task anymore. The practical free, no-training-required equivalent is to
-prompt a small free instruction-following chat model
-(`meta-llama/Llama-3.2-3B-Instruct` by default) to return a strict JSON
-verdict. This is still "an existing, pre-trained model consumed strictly
-as an external inference service" — consistent with the thesis's Section 10
-scope — just called through the router's chat-completions shape instead of
-a legacy pipeline. Swap HF_MODEL to any other free chat model on
-https://router.huggingface.co if this one gets rate-limited or deprecated;
-no other code changes needed.
+Chat Completions format. The practical free, no-training-required equivalent
+is to prompt a small instruction-following chat model to return a strict
+JSON verdict.
 
-Process Rules implemented (Thesis Table 2):
-  PR-01  Input validation: 5-1600 characters
-  PR-02  Regional-dialect detection -> reduced-confidence disclaimer
-  PR-03  Confidence >= 0.75 required for a "Malicious" verdict, else
-         reported as Spam/Suspicious
-  PR-04  5-second response budget enforced via httpx timeout
-  PR-05  Privacy by design: zero persistence, zero logging of message text
+IMPORTANT #2 (discovered during deployment): Inference Providers is now a
+metered marketplace -- nearly every model listed at
+https://router.huggingface.co/v1/models is priced per-token ("is_free":
+false), and a bare model id like "Qwen/Qwen2.5-7B-Instruct" can fail with
+"not supported by any provider you have enabled" if that model has been
+dropped from the provider network entirely (providers add/remove models
+over time). As of this writing, the only models confirmed to carry literal
+$0 pricing on the router are `prism-ml/Ternary-Bonsai-27B-gguf` and
+`prism-ml/Ternary-Bonsai-27B-AWQ-4bit`, both served via the "together"
+provider.
+
+Because provider-model availability and pricing can change at any time --
+and demonstrably has, mid-project, without warning -- this backend does not
+hard-code a single model. HF_MODELS (plural) is a comma-separated fallback
+chain tried in order on every request until one responds successfully.
+Add/remove candidates via the HF_MODELS environment variable without a
+code change. Re-check https://router.huggingface.co/v1/models (no auth
+required) periodically for current $0-priced or newly-added models to
+extend the chain.
 """
 import os
 import re
@@ -54,10 +60,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # ----------------------------------------------------------------------
-# Config (all from environment variables — nothing secret hardcoded)
+# Config (all from environment variables -- nothing secret hardcoded)
 # ----------------------------------------------------------------------
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
-HF_MODEL = os.getenv("HF_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+# Fallback chain: comma-separated list, tried in order until one succeeds.
+# Why a list instead of one model: Hugging Face's Inference Providers is a
+# live marketplace -- each third-party provider (Together, Novita, etc.)
+# can add/drop individual models from their own lineup at any time, with
+# no notice. A model that works today can silently disappear weeks later
+# (this happened to Qwen/Qwen2.5-7B-Instruct during this project's own
+# development). Trying several candidates in order makes the system
+# self-healing against that churn instead of hard-failing on one model.
+HF_MODELS = [
+    m.strip() for m in os.getenv(
+        "HF_MODELS",
+        "prism-ml/Ternary-Bonsai-27B-gguf:together,"
+        "prism-ml/Ternary-Bonsai-27B-AWQ-4bit:together,"
+        "meta-llama/Llama-3.1-8B-Instruct:novita,"
+        "Qwen/Qwen3-8B:nscale"
+    ).split(",") if m.strip()
+]
 HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 
 # Comma-separated list, e.g. "https://bantay-bait.vercel.app,https://bantay-bait.netlify.app"
@@ -80,7 +102,7 @@ CLASSIFIER_SYSTEM_PROMPT = (
 )
 
 # ----------------------------------------------------------------------
-# Logging — NEVER log raw message text (RA 10173 / PR-05)
+# Logging -- NEVER log raw message text (RA 10173 / PR-05)
 # ----------------------------------------------------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bantay-bait")
@@ -96,31 +118,24 @@ class RedactTextFilter(logging.Filter):
 logger.addFilter(RedactTextFilter())
 
 # ----------------------------------------------------------------------
-# Tagalog stopwords (stopwords-iso/stopwords-tl) — bundled locally
+# Tagalog stopwords (stopwords-iso/stopwords-tl) -- bundled locally
 # ----------------------------------------------------------------------
 STOPWORDS_PATH = Path(__file__).parent / "data" / "stopwords_tl.txt"
 TAGALOG_STOPWORDS = set()
 if STOPWORDS_PATH.exists():
     TAGALOG_STOPWORDS = {w.strip().lower() for w in STOPWORDS_PATH.read_text(encoding="utf-8").splitlines() if w.strip()}
 
-# Common Tagalog function words used for lightweight language detection
 TAGALOG_MARKERS = {"ang", "ng", "mga", "sa", "ay", "na", "ko", "mo", "niya", "namin", "natin", "ito", "iyan", "hindi", "opo", "po"}
 
-# Non-Taglish regional dialect markers (PR-02) — Cebuano/Bisaya, Ilocano, Hiligaynon
 REGIONAL_MARKERS = {
-    # Cebuano / Bisaya
     "unsa", "asa", "diri", "dinhi", "wala", "kaayo", "ngano", "kanimo", "nimo",
     "mao", "kini", "kana", "gikan", "buhaton", "salamat kaayo",
-    # Ilocano
     "adda", "awan", "wen", "saan", "kayat", "apay", "ania", "isu",
-    # Hiligaynon
     "bala", "wala sing", "diin", "abi", "ano bala",
 }
 
 
 def normalize_text(raw: str) -> str:
-    """Whitespace/casing normalization + light cleanup. No PII stripping
-    needed since we never persist the text regardless."""
     t = raw.replace("\r", " ").replace("\n", " ")
     t = re.sub(r"\s+", " ", t).strip()
     return t
@@ -158,6 +173,7 @@ class DetectResponse(BaseModel):
     reducedConfidence: bool
     reasons: list[str]
     modelLatencyMs: int
+    modelUsed: str
 
 
 # ----------------------------------------------------------------------
@@ -171,7 +187,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,     # strict allowlist — set via env var
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["Content-Type"],
@@ -180,16 +196,12 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "model": HF_MODEL, "provider_router": HF_API_URL}
+    return {"status": "ok", "models_in_priority_order": HF_MODELS, "provider_router": HF_API_URL}
 
 
 @app.get("/api/v1/samples")
 async def get_samples(limit: int = 6):
-    """Returns a handful of labeled sample SMS from the consolidated
-    Philippine corpus, for the frontend's 'Try Sample SMS' quick-test
-    buttons. Reads a static CSV — no user data involved."""
     import csv
-
     path = Path(__file__).parent / "data" / "bantay_bait_test_set.csv"
     if not path.exists():
         return {"samples": []}
@@ -198,7 +210,6 @@ async def get_samples(limit: int = 6):
         reader = csv.DictReader(f)
         for row in reader:
             samples.append({"text": row["text"], "label": row["label"]})
-    # crude stratified pick: a few of each class
     import random
     random.seed(7)
     by_label: dict[str, list] = {}
@@ -221,16 +232,11 @@ def _extract_json_object(raw: str) -> dict:
     return json.loads(match.group(0))
 
 
-async def call_huggingface(text: str) -> tuple[str, float, int]:
-    """Calls the Hugging Face Inference Providers chat-completions router and
-    returns (verdict_label, confidence, latency_ms). Raises HTTPException on
-    timeout / API error."""
-    if not HF_TOKEN:
-        raise HTTPException(status_code=503, detail="Server misconfigured: HUGGINGFACE_TOKEN not set.")
-
-    headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
+async def _try_one_model(client: httpx.AsyncClient, headers: dict, model: str, text: str) -> tuple[str, float]:
+    """Single attempt against one model. Raises on any failure so the
+    caller can move on to the next candidate."""
     payload = {
-        "model": HF_MODEL,
+        "model": model,
         "messages": [
             {"role": "system", "content": CLASSIFIER_SYSTEM_PROMPT},
             {"role": "user", "content": text},
@@ -238,45 +244,67 @@ async def call_huggingface(text: str) -> tuple[str, float, int]:
         "temperature": 0.1,
         "max_tokens": 150,
     }
+    resp = await client.post(HF_API_URL, headers=headers, json=payload)
+    resp.raise_for_status()
+    data = resp.json()
+    content = data["choices"][0]["message"]["content"]
+    parsed = _extract_json_object(content)
+
+    verdict = str(parsed.get("verdict", "spam")).strip().lower()
+    if verdict not in ("safe", "spam", "malicious"):
+        verdict = "spam"
+    confidence = float(parsed.get("confidence", 0.5))
+    confidence = max(0.0, min(1.0, confidence))
+    return verdict, confidence
+
+
+async def call_huggingface(text: str) -> tuple[str, float, int, str]:
+    """Tries each model in HF_MODELS in order until one succeeds. Returns
+    (verdict_label, confidence, latency_ms, model_used). Raises
+    HTTPException only if every candidate in the list fails."""
+    if not HF_TOKEN:
+        raise HTTPException(status_code=503, detail="Server misconfigured: HUGGINGFACE_TOKEN not set.")
+
+    headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
     start = time.monotonic()
+    last_error = "no models configured"
 
-    try:
-        async with httpx.AsyncClient(timeout=API_TIMEOUT_SECONDS) as client:
-            resp = await client.post(HF_API_URL, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            content = data["choices"][0]["message"]["content"]
-            parsed = _extract_json_object(content)
+    async with httpx.AsyncClient(timeout=API_TIMEOUT_SECONDS) as client:
+        for model in HF_MODELS:
+            try:
+                verdict, confidence = await _try_one_model(client, headers, model, text)
+                latency_ms = int((time.monotonic() - start) * 1000)
+                return verdict, confidence, latency_ms, model
+            except httpx.TimeoutException:
+                last_error = f"{model}: timed out"
+                continue
+            except httpx.HTTPStatusError as e:
+                try:
+                    msg = e.response.json().get("error", {}).get("message", "")
+                except Exception:
+                    msg = e.response.text[:150]
+                last_error = f"{model}: HTTP {e.response.status_code} {msg}"
+                logger.warning(f"Model candidate failed, trying next: {last_error}")
+                continue
+            except (KeyError, IndexError, ValueError, json.JSONDecodeError) as e:
+                last_error = f"{model}: unparseable response ({type(e).__name__})"
+                continue
+            except Exception as e:
+                last_error = f"{model}: {type(e).__name__}"
+                continue
 
-            verdict = str(parsed.get("verdict", "spam")).strip().lower()
-            if verdict not in ("safe", "spam", "malicious"):
-                verdict = "spam"
-            confidence = float(parsed.get("confidence", 0.5))
-            confidence = max(0.0, min(1.0, confidence))
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Classification timed out. Please try again.")
-    except httpx.HTTPStatusError as e:
-        if e.response.status_code == 503:
-            raise HTTPException(status_code=503, detail="Model is loading on Hugging Face, please retry in ~20s.")
-        if e.response.status_code == 404:
-            raise HTTPException(status_code=502, detail=f"Model '{HF_MODEL}' is not available on Hugging Face's free router. Try a different HF_MODEL.")
-        raise HTTPException(status_code=502, detail=f"Upstream model error: {e.response.status_code}")
-    except (KeyError, IndexError, ValueError, json.JSONDecodeError) as e:
-        logger.error(f"HF response parse failed: {type(e).__name__}")
-        raise HTTPException(status_code=502, detail="Classification service returned an unexpected response.")
-    except Exception as e:
-        logger.error(f"HF call failed: {type(e).__name__}")
-        raise HTTPException(status_code=502, detail="Classification service unavailable.")
-
-    latency_ms = int((time.monotonic() - start) * 1000)
-    return verdict, confidence, latency_ms
+    # Every candidate failed.
+    logger.error(f"All HF model candidates failed. Last error: {last_error}")
+    raise HTTPException(
+        status_code=502,
+        detail=f"All classification models are currently unavailable. Last error: {last_error}",
+    )
 
 
 @app.post("/api/v1/detect", response_model=DetectResponse)
 async def detect(req: DetectRequest):
     raw = req.text or ""
 
-    # ---- PR-01: input length validation ----
     if len(raw.strip()) < MIN_LEN:
         raise HTTPException(status_code=422, detail=f"Message must be at least {MIN_LEN} characters.")
     if len(raw) > MAX_LEN:
@@ -284,23 +312,19 @@ async def detect(req: DetectRequest):
 
     text = normalize_text(raw)
 
-    # ---- PR-02: regional dialect check ----
     is_regional = detect_regional_dialect(text)
     detected_lang = detect_language(text)
 
-    # ---- Call the model (PR-04: timeout enforced inside) ----
-    verdict, confidence, latency_ms = await call_huggingface(text)
+    verdict, confidence, latency_ms, model_used = await call_huggingface(text)
 
     reasons: list[str] = []
-
-    # ---- PR-03: confidence threshold gate for "malicious" ----
     reduced_confidence = is_regional
     if verdict == "malicious" and confidence < MALICIOUS_THRESHOLD:
         verdict = "spam"
         reasons.append("Confidence below the 0.75 threshold required for a Malicious verdict; downgraded to Spam/Suspicious.")
 
     if is_regional:
-        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope — confidence is reduced.")
+        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope -- confidence is reduced.")
 
     if verdict == "malicious":
         reasons.append("Detected credential-harvesting or brand-impersonation language typical of Philippine smishing (e.g. urgent account/OTP/verification requests).")
@@ -308,8 +332,6 @@ async def detect(req: DetectRequest):
         reasons.append("Detected promotional/advertising language without a direct fraud request.")
     else:
         reasons.append("No smishing or spam indicators detected.")
-
-    # PR-05: nothing about `text` is logged or stored below this line.
 
     return DetectResponse(
         verdict=verdict,  # type: ignore
@@ -319,4 +341,8 @@ async def detect(req: DetectRequest):
         reducedConfidence=reduced_confidence,
         reasons=reasons,
         modelLatencyMs=latency_ms,
+        modelUsed=model_used,
     )
+'@
+
+Write-Output "Done. Verifying..."
