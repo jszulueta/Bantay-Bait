@@ -1,11 +1,11 @@
 """
-Bantay-Bait Backend — FastAPI
+Bantay-Bait Backend - FastAPI
 =============================
 Free-tier production backend for the Bantay-Bait smishing detector.
 
 Stack (all $0):
   - Hosting:  Render.com free Web Service
-  - NLP:      Hugging Face Inference Providers router (serverless) — no
+  - NLP:      Hugging Face Inference Providers router (serverless) - no
               model hosting, no GPU, no training/fine-tuning.
   - Storage:  NONE. RA 10173 (Data Privacy Act) compliance = no database,
               no request logging of raw SMS text, nothing persisted.
@@ -18,15 +18,15 @@ model is fine-tuned specifically for Philippine SMS-smishing 3-class
 classification, and the scope explicitly forbids training/fine-tuning one.
 
 IMPORTANT (as of Nov 2025): Hugging Face fully retired the old serverless
-"api-inference.huggingface.co" endpoint -- including the zero-shot-classification
-pipeline this file originally used -- in favor of "Inference Providers", a
+"api-inference.huggingface.co" endpoint - including the zero-shot-classification
+pipeline this file originally used - in favor of "Inference Providers", a
 router at https://router.huggingface.co/v1 that speaks the OpenAI-compatible
 Chat Completions format. The practical free, no-training-required equivalent
 is to prompt a small instruction-following chat model to return a strict
 JSON verdict.
 
 IMPORTANT #2 (discovered during deployment): Inference Providers is now a
-metered marketplace -- nearly every model listed at
+metered marketplace - nearly every model listed at
 https://router.huggingface.co/v1/models is priced per-token ("is_free":
 false), and a bare model id like "Qwen/Qwen2.5-7B-Instruct" can fail with
 "not supported by any provider you have enabled" if that model has been
@@ -34,10 +34,11 @@ dropped from the provider network entirely (providers add/remove models
 over time). As of this writing, the only models confirmed to carry literal
 $0 pricing on the router are `prism-ml/Ternary-Bonsai-27B-gguf` and
 `prism-ml/Ternary-Bonsai-27B-AWQ-4bit`, both served via the "together"
-provider.
+provider - hence the default below, with an explicit ":together" provider
+suffix (bare/"auto" routing was unreliable in testing).
 
-Because provider-model availability and pricing can change at any time --
-and demonstrably has, mid-project, without warning -- this backend does not
+Because provider-model availability and pricing can change at any time -
+and demonstrably has, mid-project, without warning - this backend does not
 hard-code a single model. HF_MODELS (plural) is a comma-separated fallback
 chain tried in order on every request until one responds successfully.
 Add/remove candidates via the HF_MODELS environment variable without a
@@ -59,7 +60,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # ----------------------------------------------------------------------
-# Config (all from environment variables -- nothing secret hardcoded)
+# Config (all from environment variables - nothing secret hardcoded)
 # ----------------------------------------------------------------------
 HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
 # Fallback chain: comma-separated list, tried in order until one succeeds.
@@ -101,7 +102,7 @@ CLASSIFIER_SYSTEM_PROMPT = (
 )
 
 # ----------------------------------------------------------------------
-# Logging -- NEVER log raw message text (RA 10173 / PR-05)
+# Logging - NEVER log raw message text (RA 10173 / PR-05)
 # ----------------------------------------------------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bantay-bait")
@@ -117,7 +118,7 @@ class RedactTextFilter(logging.Filter):
 logger.addFilter(RedactTextFilter())
 
 # ----------------------------------------------------------------------
-# Tagalog stopwords (stopwords-iso/stopwords-tl) -- bundled locally
+# Tagalog stopwords (stopwords-iso/stopwords-tl) - bundled locally
 # ----------------------------------------------------------------------
 STOPWORDS_PATH = Path(__file__).parent / "data" / "stopwords_tl.txt"
 TAGALOG_STOPWORDS = set()
@@ -323,7 +324,7 @@ async def detect(req: DetectRequest):
         reasons.append("Confidence below the 0.75 threshold required for a Malicious verdict; downgraded to Spam/Suspicious.")
 
     if is_regional:
-        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope -- confidence is reduced.")
+        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope - confidence is reduced.")
 
     if verdict == "malicious":
         reasons.append("Detected credential-harvesting or brand-impersonation language typical of Philippine smishing (e.g. urgent account/OTP/verification requests).")
@@ -341,3 +342,4 @@ async def detect(req: DetectRequest):
         reasons=reasons,
         modelLatencyMs=latency_ms,
         modelUsed=model_used,
+    )
