@@ -5,46 +5,57 @@ Free-tier production backend for the Bantay-Bait smishing detector.
 
 Stack (all $0):
   - Hosting:  Render.com free Web Service
-  - NLP:      Hugging Face Inference Providers router (serverless) - no
-              model hosting, no GPU, no training/fine-tuning.
+  - NLP:      Groq API (free tier, OpenAI-compatible chat completions) --
+              no model hosting, no GPU, no training/fine-tuning.
   - Storage:  NONE. RA 10173 (Data Privacy Act) compliance = no database,
               no request logging of raw SMS text, nothing persisted.
 
-Model note (read this before deploying)
-----------------------------------------
-The thesis assumes a pre-trained "RoBERTa-Tagalog" model that already ships
-a 3-class (Safe/Spam/Malicious) classification head. No public Hugging Face
-model is fine-tuned specifically for Philippine SMS-smishing 3-class
-classification, and the scope explicitly forbids training/fine-tuning one.
+Model note (read this before deploying) -- migration history
+---------------------------------------------------------------
+The thesis assumes a pre-trained "RoBERTa-Tagalog" model consumed via
+Hugging Face's Inference API. During deployment this project went through
+several Hugging Face API generations in quick succession:
 
-IMPORTANT (as of Nov 2025): Hugging Face fully retired the old serverless
-"api-inference.huggingface.co" endpoint - including the zero-shot-classification
-pipeline this file originally used - in favor of "Inference Providers", a
-router at https://router.huggingface.co/v1 that speaks the OpenAI-compatible
-Chat Completions format. The practical free, no-training-required equivalent
-is to prompt a small instruction-following chat model to return a strict
-JSON verdict.
+  1. The original plan (a zero-shot-classification pipeline against a
+     Tagalog NLI model via api-inference.huggingface.co) stopped working
+     because Hugging Face fully retired that endpoint in Nov 2025.
+  2. The replacement (router.huggingface.co "Inference Providers", prompting
+     a chat model for a JSON verdict) worked initially, but proved
+     structurally unreliable for a $0 use case: individual models can be
+     silently dropped from the provider marketplace at any time with no
+     notice (this happened to Qwen/Qwen2.5-7B-Instruct mid-project), AND
+     free accounts are capped at a shared $0.10/month credit allowance
+     that, once exhausted, blocks ALL models on the router -- including
+     ones nominally priced at $0 per token. Neither failure mode is
+     fixable by picking a different Hugging Face model; both are inherent
+     to how that marketplace is now run.
+  3. This version switches to Groq (https://console.groq.com) instead.
+     Groq's free tier is gated by RATE LIMITS (roughly 30 requests/min,
+     14,400 requests/day, no credit card required) rather than a spendable
+     credit balance, and Groq runs its own models directly rather than
+     brokering third-party providers -- so there is no marketplace churn
+     risk of a model vanishing without notice. This is a more durable fit
+     for a low-volume academic/demo system than Hugging Face's current
+     Inference Providers product.
 
-IMPORTANT #2 (discovered during deployment): Inference Providers is now a
-metered marketplace - nearly every model listed at
-https://router.huggingface.co/v1/models is priced per-token ("is_free":
-false), and a bare model id like "Qwen/Qwen2.5-7B-Instruct" can fail with
-"not supported by any provider you have enabled" if that model has been
-dropped from the provider network entirely (providers add/remove models
-over time). As of this writing, the only models confirmed to carry literal
-$0 pricing on the router are `prism-ml/Ternary-Bonsai-27B-gguf` and
-`prism-ml/Ternary-Bonsai-27B-AWQ-4bit`, both served via the "together"
-provider - hence the default below, with an explicit ":together" provider
-suffix (bare/"auto" routing was unreliable in testing).
+The core thesis claim in Section 10 -- that the NLP capability is consumed
+strictly as an external, pre-trained inference service with no training or
+fine-tuning performed by the researchers -- remains true under this change;
+only the specific provider and model changed, for the documented reasons
+above.
 
-Because provider-model availability and pricing can change at any time -
-and demonstrably has, mid-project, without warning - this backend does not
-hard-code a single model. HF_MODELS (plural) is a comma-separated fallback
-chain tried in order on every request until one responds successfully.
-Add/remove candidates via the HF_MODELS environment variable without a
-code change. Re-check https://router.huggingface.co/v1/models (no auth
-required) periodically for current $0-priced or newly-added models to
-extend the chain.
+Groq's API is OpenAI-compatible, so if Groq's own terms or free tier ever
+change, swapping GROQ_MODELS (or even swapping to a different compatible
+provider) only requires changing the base URL and model list below, not
+the request logic itself.
+
+Process Rules implemented (Thesis Table 2):
+  PR-01  Input validation: 5-1600 characters
+  PR-02  Regional-dialect detection -> reduced-confidence disclaimer
+  PR-03  Confidence >= 0.75 required for a "Malicious" verdict, else
+         reported as Spam/Suspicious
+  PR-04  5-second response budget enforced via httpx timeout
+  PR-05  Privacy by design: zero persistence, zero logging of message text
 """
 import os
 import re
@@ -60,27 +71,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # ----------------------------------------------------------------------
-# Config (all from environment variables - nothing secret hardcoded)
+# Config (all from environment variables -- nothing secret hardcoded)
 # ----------------------------------------------------------------------
-HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 # Fallback chain: comma-separated list, tried in order until one succeeds.
-# Why a list instead of one model: Hugging Face's Inference Providers is a
-# live marketplace -- each third-party provider (Together, Novita, etc.)
-# can add/drop individual models from their own lineup at any time, with
-# no notice. A model that works today can silently disappear weeks later
-# (this happened to Qwen/Qwen2.5-7B-Instruct during this project's own
-# development). Trying several candidates in order makes the system
-# self-healing against that churn instead of hard-failing on one model.
-HF_MODELS = [
+# Groq is far less prone to individual-model churn than Hugging Face's
+# marketplace was, but a short fallback list costs nothing and protects
+# against a single model being deprecated or rate-limited in the future.
+GROQ_MODELS = [
     m.strip() for m in os.getenv(
-        "HF_MODELS",
-        "prism-ml/Ternary-Bonsai-27B-gguf:together,"
-        "prism-ml/Ternary-Bonsai-27B-AWQ-4bit:together,"
-        "meta-llama/Llama-3.1-8B-Instruct:novita,"
-        "Qwen/Qwen3-8B:nscale"
+        "GROQ_MODELS",
+        "llama-3.1-8b-instant,"
+        "llama-3.3-70b-versatile,"
+        "openai/gpt-oss-20b"
     ).split(",") if m.strip()
 ]
-HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Comma-separated list, e.g. "https://bantay-bait.vercel.app,https://bantay-bait.netlify.app"
 ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
@@ -102,7 +108,7 @@ CLASSIFIER_SYSTEM_PROMPT = (
 )
 
 # ----------------------------------------------------------------------
-# Logging - NEVER log raw message text (RA 10173 / PR-05)
+# Logging -- NEVER log raw message text (RA 10173 / PR-05)
 # ----------------------------------------------------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bantay-bait")
@@ -118,7 +124,7 @@ class RedactTextFilter(logging.Filter):
 logger.addFilter(RedactTextFilter())
 
 # ----------------------------------------------------------------------
-# Tagalog stopwords (stopwords-iso/stopwords-tl) - bundled locally
+# Tagalog stopwords (stopwords-iso/stopwords-tl) -- bundled locally
 # ----------------------------------------------------------------------
 STOPWORDS_PATH = Path(__file__).parent / "data" / "stopwords_tl.txt"
 TAGALOG_STOPWORDS = set()
@@ -182,7 +188,7 @@ class DetectResponse(BaseModel):
 app = FastAPI(
     title="Bantay-Bait API",
     description="Free-tier smishing detection API for Filipino mobile users.",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -196,7 +202,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "models_in_priority_order": HF_MODELS, "provider_router": HF_API_URL}
+    return {"status": "ok", "models_in_priority_order": GROQ_MODELS, "provider": "groq", "api_url": GROQ_API_URL}
 
 
 @app.get("/api/v1/samples")
@@ -244,7 +250,7 @@ async def _try_one_model(client: httpx.AsyncClient, headers: dict, model: str, t
         "temperature": 0.1,
         "max_tokens": 150,
     }
-    resp = await client.post(HF_API_URL, headers=headers, json=payload)
+    resp = await client.post(GROQ_API_URL, headers=headers, json=payload)
     resp.raise_for_status()
     data = resp.json()
     content = data["choices"][0]["message"]["content"]
@@ -258,19 +264,19 @@ async def _try_one_model(client: httpx.AsyncClient, headers: dict, model: str, t
     return verdict, confidence
 
 
-async def call_huggingface(text: str) -> tuple[str, float, int, str]:
-    """Tries each model in HF_MODELS in order until one succeeds. Returns
+async def call_groq(text: str) -> tuple[str, float, int, str]:
+    """Tries each model in GROQ_MODELS in order until one succeeds. Returns
     (verdict_label, confidence, latency_ms, model_used). Raises
     HTTPException only if every candidate in the list fails."""
-    if not HF_TOKEN:
-        raise HTTPException(status_code=503, detail="Server misconfigured: HUGGINGFACE_TOKEN not set.")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="Server misconfigured: GROQ_API_KEY not set.")
 
-    headers = {"Authorization": f"Bearer {HF_TOKEN}", "Content-Type": "application/json"}
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
     start = time.monotonic()
     last_error = "no models configured"
 
     async with httpx.AsyncClient(timeout=API_TIMEOUT_SECONDS) as client:
-        for model in HF_MODELS:
+        for model in GROQ_MODELS:
             try:
                 verdict, confidence = await _try_one_model(client, headers, model, text)
                 latency_ms = int((time.monotonic() - start) * 1000)
@@ -293,8 +299,7 @@ async def call_huggingface(text: str) -> tuple[str, float, int, str]:
                 last_error = f"{model}: {type(e).__name__}"
                 continue
 
-    # Every candidate failed.
-    logger.error(f"All HF model candidates failed. Last error: {last_error}")
+    logger.error(f"All Groq model candidates failed. Last error: {last_error}")
     raise HTTPException(
         status_code=502,
         detail=f"All classification models are currently unavailable. Last error: {last_error}",
@@ -315,7 +320,7 @@ async def detect(req: DetectRequest):
     is_regional = detect_regional_dialect(text)
     detected_lang = detect_language(text)
 
-    verdict, confidence, latency_ms, model_used = await call_huggingface(text)
+    verdict, confidence, latency_ms, model_used = await call_groq(text)
 
     reasons: list[str] = []
     reduced_confidence = is_regional
@@ -324,7 +329,7 @@ async def detect(req: DetectRequest):
         reasons.append("Confidence below the 0.75 threshold required for a Malicious verdict; downgraded to Spam/Suspicious.")
 
     if is_regional:
-        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope - confidence is reduced.")
+        reasons.append("Message may contain a regional Philippine dialect (Cebuano/Ilocano/Hiligaynon) outside the Tagalog/English/Taglish scope -- confidence is reduced.")
 
     if verdict == "malicious":
         reasons.append("Detected credential-harvesting or brand-impersonation language typical of Philippine smishing (e.g. urgent account/OTP/verification requests).")
