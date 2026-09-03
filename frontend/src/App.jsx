@@ -43,7 +43,7 @@ const TRANSLATIONS = {
     heroTitlePrefix: 'Start navigating',
     heroTitleHighlight: 'your mobile security.',
     heroSubtitle: 'Unlock the power of precision smishing detection with Bantay-Bait — your all-in-one Taglish NLP fraud prevention solution.',
-    badgeText: 'Philippine Smishing Protection • Powered by Qwen',
+    badgeText: '✨ Philippine Smishing Protection • Powered by RoBERTa NLP',
     detectorTab: 'SMS Smishing Detector',
     inputPlaceholder: 'Paste suspected SMS text here (e.g., GCash OTP harvesting, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Clear text',
@@ -66,9 +66,10 @@ const TRANSLATIONS = {
     privacyNotice: 'Privacy Guaranteed: Your phone number and text are never stored (RA 10173 Data Privacy Act).',
     seniorModeOn: 'Senior Mode: ON',
     seniorModeOff: 'Senior Mode A+',
+    trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
     whyBantayTitle: 'Why Choose Bantay-Bait\'s AI Detector',
     whyBantaySub: 'Built on academic research at Mapúa University to empower every Filipino against digital scams through localized NLP.',
-    limitationNotice: 'Know the limitations of AI tools: While Qwen is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
+    limitationNotice: 'Know the limitations of AI tools: While RoBERTa-Tagalog is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
@@ -79,7 +80,7 @@ const TRANSLATIONS = {
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
     step2Title: '2. Paste & Analyze',
-    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with Qwen AI.',
+    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with RoBERTa-Tagalog AI.',
     step3Title: '3. Get Instant Verdict',
     step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
     faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
@@ -91,8 +92,8 @@ const TRANSLATIONS = {
     copyReport: 'Copy Report Summary',
     copiedReport: 'Copied!',
     closeModal: 'Close',
-    footerThesis: 'Bantay-Bait: A Mobile Responsive Web Application For Localized Smishing Detection (2026)',
-    footerAuthors: 'Authors: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena ',
+    footerThesis: 'Bantay-Bait • Mapúa University School of IT Thesis Project (2026)',
+    footerAuthors: 'Authors: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena | Adviser: Bryan Dimabayao (Check Point)',
     maliciousAction: 'DO NOT click any link! DO NOT share your 6-digit OTP or PIN. Block this sender immediately.',
     spamAction: 'Do not reply to promotional messages from unknown senders.',
     safeAction: 'This message appears safe. Always verify sensitive transactions through official banking apps.',
@@ -112,7 +113,7 @@ const TRANSLATIONS = {
     heroTitlePrefix: 'Simulang protektahan',
     heroTitleHighlight: 'ang iyong mobile security.',
     heroSubtitle: 'Gamitin ang kapangyarihan ng mabilis at tumpak na pag-detect ng smishing gamit ang Bantay-Bait — ang iyong kumpletong Taglish NLP detector.',
-    badgeText: 'Proteksyon sa Smishing sa Pilipinas • Powered by Qwen',
+    badgeText: '✨ Proteksyon sa Smishing sa Pilipinas • Powered by RoBERTa NLP',
     detectorTab: 'Tagasuri ng SMS Scam',
     inputPlaceholder: 'I-paste dito ang kaduda-dudang mensahe (halimbawa: GCash OTP, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Burahin ang text',
@@ -135,9 +136,10 @@ const TRANSLATIONS = {
     privacyNotice: 'Ligtas sa Privacy: Hindi iniimbak ang iyong numero o mensahe (RA 10173 Data Privacy Act).',
     seniorModeOn: 'Senior Mode: Naka-ON',
     seniorModeOff: 'Senior Mode A+',
+    trustedByHeader: 'Pinoprotektahan ang mga transaksyon sa mga sikat na apps sa Pilipinas',
     whyBantayTitle: 'Bakit Gamitin ang AI Detector ng Bantay-Bait',
     whyBantaySub: 'Binuo gamit ang pananaliksik sa Mapúa University upang tulungan ang bawat Pilipino laban sa digital fraud.',
-    limitationNotice: 'Alamin ang limitasyon ng AI: Bagama\'t nakatutok ang Qwen sa Tagalog at Taglish, ang mga mensaheng may rehiyonal na diyalekto (Visayan, Ilocano) ay maaaring magkaroon ng mas mababang confidence score.',
+    limitationNotice: 'Alamin ang limitasyon ng AI: Bagama\'t nakatutok ang RoBERTa-Tagalog sa Tagalog at Taglish, ang mga mensaheng may rehiyonal na diyalekto (Visayan, Ilocano) ay maaaring magkaroon ng mas mababang confidence score.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Sadyang sinanay para sa wikang Tagalog at English na ginagamit sa smishing sa Pilipinas.',
     pillar2Title: 'Iwas sa Maling Pagpindot ng Link',
@@ -148,7 +150,7 @@ const TRANSLATIONS = {
     step1Title: '1. Kopyahin ang SMS',
     step1Desc: 'Kopyahin ang natanggap na kaduda-dudang mensahe sa iyong SMS inbox.',
     step2Title: '2. I-paste at Suriin',
-    step2Desc: 'Pindutin ang paste button at i-click ang Suriin para masuri ng Qwen AI.',
+    step2Desc: 'Pindutin ang paste button at i-click ang Suriin para masuri ng RoBERTa AI.',
     step3Title: '3. Tingnan ang Resulta',
     step3Desc: 'Kumuha ng malinaw na babala, paliwanag, at gabay kung ano ang dapat gawin.',
     faqTitle: 'Mga Gabay sa Mabisang Paggamit ng SMS Safety Tools',
@@ -181,7 +183,7 @@ const TRANSLATIONS = {
     heroTitlePrefix: 'Start navigating',
     heroTitleHighlight: 'your mobile security.',
     heroSubtitle: 'Unlock the power of precision smishing detection with Bantay-Bait — your all-in-one Taglish NLP fraud prevention solution.',
-    badgeText: 'Philippine Smishing Protection • Powered by Qwen',
+    badgeText: '✨ Philippine Smishing Protection • Powered by RoBERTa NLP',
     detectorTab: 'SMS Smishing Detector',
     inputPlaceholder: 'Paste suspected SMS text here (e.g., GCash OTP harvesting, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Clear text',
@@ -204,9 +206,10 @@ const TRANSLATIONS = {
     privacyNotice: 'Privacy Guaranteed: Your phone number and text are never stored (RA 10173 Data Privacy Act).',
     seniorModeOn: 'Senior Mode: ON',
     seniorModeOff: 'Senior Mode A+',
+    trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
     whyBantayTitle: 'Why Choose Bantay-Bait\'s AI Detector',
     whyBantaySub: 'Built on academic research at Mapúa University to empower every Filipino against digital scams through localized NLP.',
-    limitationNotice: 'Know the limitations of AI tools: While Qwen is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
+    limitationNotice: 'Know the limitations of AI tools: While RoBERTa-Tagalog is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
@@ -217,7 +220,7 @@ const TRANSLATIONS = {
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
     step2Title: '2. Paste & Analyze',
-    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with Qwen AI.',
+    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with RoBERTa-Tagalog AI.',
     step3Title: '3. Get Instant Verdict',
     step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
     faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
@@ -505,7 +508,7 @@ export default function App() {
     // Abort the request if it runs past the 5-second PR-04 budget so the UI
     // never hangs indefinitely on a slow/dead backend.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5500);
+    const timeoutId = setTimeout(() => controller.abort(), 55000);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/detect`, {
@@ -639,7 +642,7 @@ export default function App() {
                   BANTAY-BAIT
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-[#d4f570]/15 text-[#d4f570] border border-[#d4f570]/30 px-2 py-0.5 rounded-full">
-                  Qwen
+                  RoBERTa NLP
                 </span>
               </div>
             </div>
@@ -736,6 +739,22 @@ export default function App() {
             </div>
           </div>
 
+        </section>
+
+        {/* LOGO STRIP / TRUSTED PLATFORMS */}
+        <section className="text-center space-y-3 pt-2">
+          <p className="text-xs font-semibold text-emerald-400/60 uppercase tracking-widest">
+            {t.trustedByHeader}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 opacity-60 text-emerald-100 font-black text-xs sm:text-sm tracking-wider">
+            <span>GCash</span>
+            <span>Maya</span>
+            <span>BDO Online</span>
+            <span>BPI</span>
+            <span>J&T Express</span>
+            <span>Shopee</span>
+            <span>CICC 1326</span>
+          </div>
         </section>
 
         {/* MAIN SMS DETECTOR TOOL CONTAINER (Erudia Styled) */}
@@ -1061,7 +1080,7 @@ export default function App() {
               },
               {
                 q: 'What happens if I receive a message in Visayan or Cebuano?',
-                a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because Qwen is optimized for Tagalog, Taglish, and English text.'
+                a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because RoBERTa-Tagalog is optimized for Tagalog, Taglish, and English text.'
               },
               {
                 q: 'Is my phone number or SMS text stored on a server?',
