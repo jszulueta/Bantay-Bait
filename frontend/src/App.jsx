@@ -42,8 +42,8 @@ const TRANSLATIONS = {
   taglish: {
     heroTitlePrefix: 'Start navigating',
     heroTitleHighlight: 'your mobile security.',
-    heroSubtitle: 'Unlock the power of precision smishing detection with Bantay-Bait — your all-in-one Taglish NLP fraud prevention solution.',
-    badgeText: '✨ Philippine Smishing Protection • Powered by RoBERTa NLP',
+    heroSubtitle: 'Bantay-Bait checks suspicious SMS messages for scams in seconds. Built for Taglish, Tagalog, and English text.',
+    badgeText: 'Philippine Smishing Protection',
     detectorTab: 'SMS Smishing Detector',
     inputPlaceholder: 'Paste suspected SMS text here (e.g., GCash OTP harvesting, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Clear text',
@@ -68,8 +68,8 @@ const TRANSLATIONS = {
     seniorModeOff: 'Senior Mode A+',
     trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
     whyBantayTitle: 'Why Choose Bantay-Bait\'s AI Detector',
-    whyBantaySub: 'Built on academic research at Mapúa University to empower every Filipino against digital scams through localized NLP.',
-    limitationNotice: 'Know the limitations of AI tools: While RoBERTa-Tagalog is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
+    whyBantaySub: 'Built through research at Mapua University to help Filipinos spot digital scams using localized NLP.',
+    limitationNotice: 'Know the limitations of AI tools: While our detector is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
@@ -80,7 +80,7 @@ const TRANSLATIONS = {
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
     step2Title: '2. Paste & Analyze',
-    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with RoBERTa-Tagalog AI.',
+    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate the message.',
     step3Title: '3. Get Instant Verdict',
     step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
     faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
@@ -92,7 +92,7 @@ const TRANSLATIONS = {
     copyReport: 'Copy Report Summary',
     copiedReport: 'Copied!',
     closeModal: 'Close',
-    footerThesis: 'Bantay-Bait • Mapúa University School of IT Thesis Project (2026)',
+    footerThesis: 'Bantay-Bait - Mapua University School of IT Thesis Project (2026)',
     footerAuthors: 'Authors: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena | Adviser: Bryan Dimabayao (Check Point)',
     maliciousAction: 'DO NOT click any link! DO NOT share your 6-digit OTP or PIN. Block this sender immediately.',
     spamAction: 'Do not reply to promotional messages from unknown senders.',
@@ -101,19 +101,19 @@ const TRANSLATIONS = {
     navHowItWorks: 'How It Works',
     navScamGuide: 'Scam Taxonomy',
     navFAQ: 'FAQ',
-    heroCard1Title: 'Copy & paste SMS text with zero risk',
+    heroCard1Title: 'Copy and paste SMS text with zero risk',
     heroCard1Sub: 'Evaluates full text social engineering patterns without requiring you to open or tap dangerous links.',
-    heroCard2Title: 'Tailor your security for GCash, Maya & BDO alerts',
+    heroCard2Title: 'Tailor your security for GCash, Maya and BDO alerts',
     heroCard2Sub: 'Detects OTP harvesting and bank account block impersonations instantaneously.',
-    sec2Heading: 'Navigate your mobile security landscape effortlessly and make informed decisions with confidence.',
+    sec2Heading: 'Check a message before you act on it, so you can decide with confidence.',
     demographicTitle: 'Built for all Filipino mobile users like you',
     demographicSub: 'Designed to protect university students, working professionals, and senior citizens across Metro Manila and provinces.'
   },
   tagalog: {
     heroTitlePrefix: 'Simulang protektahan',
     heroTitleHighlight: 'ang iyong mobile security.',
-    heroSubtitle: 'Gamitin ang kapangyarihan ng mabilis at tumpak na pag-detect ng smishing gamit ang Bantay-Bait — ang iyong kumpletong Taglish NLP detector.',
-    badgeText: '✨ Proteksyon sa Smishing sa Pilipinas • Powered by RoBERTa NLP',
+    heroSubtitle: 'Sinusuri ng Bantay-Bait ang kaduda-dudang SMS sa loob ng ilang segundo. Ginawa para sa Tagalog, Taglish, at English na mensahe.',
+    badgeText: 'Proteksyon sa Smishing sa Pilipinas',
     detectorTab: 'Tagasuri ng SMS Scam',
     inputPlaceholder: 'I-paste dito ang kaduda-dudang mensahe (halimbawa: GCash OTP, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Burahin ang text',
@@ -138,8 +138,8 @@ const TRANSLATIONS = {
     seniorModeOff: 'Senior Mode A+',
     trustedByHeader: 'Pinoprotektahan ang mga transaksyon sa mga sikat na apps sa Pilipinas',
     whyBantayTitle: 'Bakit Gamitin ang AI Detector ng Bantay-Bait',
-    whyBantaySub: 'Binuo gamit ang pananaliksik sa Mapúa University upang tulungan ang bawat Pilipino laban sa digital fraud.',
-    limitationNotice: 'Alamin ang limitasyon ng AI: Bagama\'t nakatutok ang RoBERTa-Tagalog sa Tagalog at Taglish, ang mga mensaheng may rehiyonal na diyalekto (Visayan, Ilocano) ay maaaring magkaroon ng mas mababang confidence score.',
+    whyBantaySub: 'Binuo gamit ang pananaliksik sa Mapua University upang tulungan ang bawat Pilipino laban sa digital fraud.',
+    limitationNotice: 'Alamin ang limitasyon ng AI: Bagama\'t nakatutok ang aming detector sa Tagalog at Taglish, ang mga mensaheng may rehiyonal na diyalekto (Visayan, Ilocano) ay maaaring magkaroon ng mas mababang confidence score.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Sadyang sinanay para sa wikang Tagalog at English na ginagamit sa smishing sa Pilipinas.',
     pillar2Title: 'Iwas sa Maling Pagpindot ng Link',
@@ -150,7 +150,7 @@ const TRANSLATIONS = {
     step1Title: '1. Kopyahin ang SMS',
     step1Desc: 'Kopyahin ang natanggap na kaduda-dudang mensahe sa iyong SMS inbox.',
     step2Title: '2. I-paste at Suriin',
-    step2Desc: 'Pindutin ang paste button at i-click ang Suriin para masuri ng RoBERTa AI.',
+    step2Desc: 'Pindutin ang paste button at i-click ang Suriin para masuri ang mensahe.',
     step3Title: '3. Tingnan ang Resulta',
     step3Desc: 'Kumuha ng malinaw na babala, paliwanag, at gabay kung ano ang dapat gawin.',
     faqTitle: 'Mga Gabay sa Mabisang Paggamit ng SMS Safety Tools',
@@ -162,7 +162,7 @@ const TRANSLATIONS = {
     copyReport: 'Kopyahin ang Report Text',
     copiedReport: 'Na-kopya!',
     closeModal: 'Isara',
-    footerThesis: 'Bantay-Bait • Mapúa University School of IT Thesis Project (2026)',
+    footerThesis: 'Bantay-Bait - Mapua University School of IT Thesis Project (2026)',
     footerAuthors: 'May-akda: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena | Adviser: Bryan Dimabayao (Check Point)',
     maliciousAction: 'HUWAG i-click ang link! HUWAG ibigay ang iyong 6-digit OTP o PIN. I-block agad ang numerong ito.',
     spamAction: 'Huwag nang mag-reply sa mga promotional messages mula sa hindi kilalang numero.',
@@ -175,15 +175,15 @@ const TRANSLATIONS = {
     heroCard1Sub: 'Sinusuri ang buong text nang hindi mo kailangang i-click ang delikadong link sa inbox.',
     heroCard2Title: 'I-angkop ang proteksyon para sa GCash, Maya at BDO alerts',
     heroCard2Sub: 'Mabilis na natutukoy ang pagnanakaw ng OTP at pekeng pag-lock ng bank account.',
-    sec2Heading: 'Subaybayan ang iyong seguridad sa mobile nang mabilis at magpasya nang may kumpiyansa.',
+    sec2Heading: 'Suriin muna ang mensahe bago kumilos, para makapagdesisyon ka nang may kumpiyansa.',
     demographicTitle: 'Binuo para sa lahat ng Pilipinong gumagamit ng mobile phone',
     demographicSub: 'Pinoprotektahan ang mga estudyante, nagtatrabaho, at mga senior citizen sa buong bansa.'
   },
   english: {
     heroTitlePrefix: 'Start navigating',
     heroTitleHighlight: 'your mobile security.',
-    heroSubtitle: 'Unlock the power of precision smishing detection with Bantay-Bait — your all-in-one Taglish NLP fraud prevention solution.',
-    badgeText: '✨ Philippine Smishing Protection • Powered by RoBERTa NLP',
+    heroSubtitle: 'Bantay-Bait checks suspicious SMS messages for scams in seconds. Built for Taglish, Tagalog, and English text.',
+    badgeText: 'Philippine Smishing Protection',
     detectorTab: 'SMS Smishing Detector',
     inputPlaceholder: 'Paste suspected SMS text here (e.g., GCash OTP harvesting, BDO locked account, J&T parcel fee, Shopee job offer)...',
     clearBtn: 'Clear text',
@@ -208,8 +208,8 @@ const TRANSLATIONS = {
     seniorModeOff: 'Senior Mode A+',
     trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
     whyBantayTitle: 'Why Choose Bantay-Bait\'s AI Detector',
-    whyBantaySub: 'Built on academic research at Mapúa University to empower every Filipino against digital scams through localized NLP.',
-    limitationNotice: 'Know the limitations of AI tools: While RoBERTa-Tagalog is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
+    whyBantaySub: 'Built through research at Mapua University to help Filipinos spot digital scams using localized NLP.',
+    limitationNotice: 'Know the limitations of AI tools: While our detector is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
     pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
@@ -220,7 +220,7 @@ const TRANSLATIONS = {
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
     step2Title: '2. Paste & Analyze',
-    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate with RoBERTa-Tagalog AI.',
+    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate the message.',
     step3Title: '3. Get Instant Verdict',
     step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
     faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
@@ -232,7 +232,7 @@ const TRANSLATIONS = {
     copyReport: 'Copy Report Summary',
     copiedReport: 'Copied!',
     closeModal: 'Close',
-    footerThesis: 'Bantay-Bait • Mapúa University School of IT Thesis Project (2026)',
+    footerThesis: 'Bantay-Bait - Mapua University School of IT Thesis Project (2026)',
     footerAuthors: 'Authors: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena | Adviser: Bryan Dimabayao (Check Point)',
     maliciousAction: 'DO NOT click any link! DO NOT share your 6-digit OTP or PIN. Block this sender immediately.',
     spamAction: 'Do not reply to promotional messages from unknown senders.',
@@ -241,11 +241,11 @@ const TRANSLATIONS = {
     navHowItWorks: 'How It Works',
     navScamGuide: 'Scam Taxonomy',
     navFAQ: 'FAQ',
-    heroCard1Title: 'Copy & paste SMS text with zero risk',
+    heroCard1Title: 'Copy and paste SMS text with zero risk',
     heroCard1Sub: 'Evaluates full text social engineering patterns without requiring you to open or tap dangerous links.',
-    heroCard2Title: 'Tailor your security for GCash, Maya & BDO alerts',
+    heroCard2Title: 'Tailor your security for GCash, Maya and BDO alerts',
     heroCard2Sub: 'Detects OTP harvesting and bank account block impersonations instantaneously.',
-    sec2Heading: 'Navigate your mobile security landscape effortlessly and make informed decisions with confidence.',
+    sec2Heading: 'Check a message before you act on it, so you can decide with confidence.',
     demographicTitle: 'Built for all Filipino mobile users like you',
     demographicSub: 'Designed to protect university students, working professionals, and senior citizens across Metro Manila and provinces.'
   }
@@ -321,7 +321,7 @@ const SCAM_TAXONOMY_I18N = {
       title: 'Pekeng Part-time Job Offer',
       type: 'Job Scam',
       desc: 'Nangangako ng P1,500 - P5,000 araw-araw para sa simpleng online task o social media likes.',
-      redFlags: ['Galing sa random 11-digit mobile number', 'Pinapalipat ka sa WhatsApp o Telegram', 'Hihingan ka ng paunang deposit'],
+      redFlags: ['Galing sa random 11-digit mobile number', 'Pinapalipat ka sa WhatsApp o Telegram', 'Hihingan ka ng paunang deposito'],
       tip: 'Ang mga totoong kumpanya ay hindi hihingi ng pera para sa trabaho.'
     }
   ],
@@ -505,8 +505,8 @@ export default function App() {
       return;
     }
 
-    // Abort the request if it runs past the 5-second PR-04 budget so the UI
-    // never hangs indefinitely on a slow/dead backend.
+    // Abort the request if it runs past Render's cold-start + Groq response
+    // time, so the UI never hangs indefinitely on a dead backend.
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 55000);
 
@@ -550,8 +550,8 @@ export default function App() {
       const message =
         err.name === 'AbortError'
           ? lang === 'english'
-            ? 'The scan took too long and timed out. Please try again.'
-            : 'Matagal ang pag-scan at nag-timeout. Pakisubukang muli.'
+            ? 'This is taking a while, the server may be waking up from being idle. Trying again usually works.'
+            : 'Matagal ito, baka nagigising pa lang ang server pagkatapos ng ilang minutong idle. Subukan ulit.'
           : lang === 'english'
           ? `Could not reach the detector: ${err.message}`
           : `Hindi ma-abot ang detector: ${err.message}`;
@@ -620,32 +620,19 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#06231a] text-slate-100 font-sans selection:bg-[#d4f570] selection:text-[#06231a] ${
+    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif' }} className={`min-h-screen overflow-x-hidden bg-[#06231a] text-slate-100 selection:bg-[#d4f570] selection:text-[#06231a] ${
       seniorMode ? 'text-lg leading-relaxed' : 'text-base'
     }`}>
-      
-      {/* Background Speckle / Gradient Texture */}
-      <div className="fixed inset-0 pointer-events-none opacity-20 z-0 bg-[radial-gradient(#d4f570_1px,transparent_1px)] [background-size:24px_24px]" />
 
-      {/* HEADER BAR (Erudia Style) */}
+      {/* HEADER BAR */}
       <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-[#134e3e] bg-[#06231a]/90">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4 relative z-10">
-          
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3 relative z-10">
+
           {/* Brand Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#d4f570] flex items-center justify-center text-[#06231a] font-black shadow-lg shadow-[#d4f570]/20">
-              <Shield className="w-6 h-6 text-[#06231a]" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xl tracking-tight text-white uppercase font-mono">
-                  BANTAY-BAIT
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-[#d4f570]/15 text-[#d4f570] border border-[#d4f570]/30 px-2 py-0.5 rounded-full">
-                  RoBERTa NLP
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center">
+            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white uppercase font-mono">
+              BANTAY-BAIT
+            </span>
           </div>
 
           {/* Navigation Links (Desktop) */}
@@ -656,41 +643,40 @@ export default function App() {
           </nav>
 
           {/* Controls: Language Switcher + Senior Mode */}
-          <div className="flex items-center space-x-2">
-            
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+
             {/* Language Switcher Toggle */}
-            <div className="bg-[#0b3327] border border-[#135a47] rounded-full p-1 flex text-xs font-semibold">
+            <div className="bg-[#0b3327] border border-[#135a47] rounded-full p-1 flex text-[10px] sm:text-xs font-semibold">
               <button
                 onClick={() => setLang('taglish')}
-                className={`px-3 py-1 rounded-full transition ${lang === 'taglish' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
+                className={`px-2 sm:px-3 py-1 rounded-full transition ${lang === 'taglish' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
               >
                 Taglish
               </button>
               <button
                 onClick={() => setLang('tagalog')}
-                className={`px-3 py-1 rounded-full transition ${lang === 'tagalog' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
+                className={`px-2 sm:px-3 py-1 rounded-full transition ${lang === 'tagalog' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
               >
                 Tagalog
               </button>
               <button
                 onClick={() => setLang('english')}
-                className={`px-3 py-1 rounded-full transition ${lang === 'english' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
+                className={`px-2 sm:px-3 py-1 rounded-full transition ${lang === 'english' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
               >
-                English
+                EN
               </button>
             </div>
 
             {/* Senior Mode Toggle */}
             <button
               onClick={() => setSeniorMode(!seniorMode)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition flex items-center space-x-1 ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold border transition flex items-center space-x-1 ${
                 seniorMode 
                   ? 'bg-amber-400 text-[#06231a] border-amber-300 font-black' 
                   : 'bg-[#0b3327] border-[#135a47] text-emerald-200 hover:bg-[#114838]'
               }`}
             >
               <span className="font-black text-sm">A+</span>
-              <span className="hidden sm:inline">{seniorMode ? 'ON' : 'Senior'}</span>
             </button>
           </div>
         </div>
@@ -698,28 +684,18 @@ export default function App() {
 
       {/* MAIN CONTENT AREA */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-12 relative z-10">
-        
-        {/* HERO SECTION (Erudia 3-Card Aesthetic) */}
+
+        {/* HERO SECTION */}
         <section className="space-y-6">
-          
-          {/* Main Hero Card */}
-          <div className="bg-gradient-to-br from-[#0c3f30] via-[#093529] to-[#052119] border border-[#175d4a] rounded-[36px] p-8 sm:p-12 relative overflow-hidden shadow-2xl">
-            
-            {/* Abstract Terrazzo Sphere graphic overlay (3D Graphic like Erudia) */}
-            <div className="absolute right-[-40px] top-[-40px] w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-[#d4f570]/20 blur-2xl pointer-events-none" />
-            <div className="absolute right-6 top-6 w-32 h-32 sm:w-48 sm:h-48 rounded-full border-4 border-[#d4f570]/30 bg-gradient-to-tr from-[#0a382c] to-[#125845] shadow-2xl hidden md:flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-[#d4f570] text-[#06231a] flex items-center justify-center font-black">
-                <Shield className="w-8 h-8" />
-              </div>
-            </div>
 
-            <div className="max-w-2xl space-y-5 relative z-10">
-              <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-[#d4f570]/15 border border-[#d4f570]/30 text-[#d4f570] text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{t.badgeText}</span>
-              </div>
+          <div className="bg-[#0c3f30] border border-[#175d4a] rounded-3xl p-6 sm:p-10">
 
-              <h1 className={`font-black text-white tracking-tight leading-tight ${seniorMode ? 'text-4xl sm:text-6xl' : 'text-3xl sm:text-5xl'}`}>
+            <div className="max-w-2xl space-y-4">
+              <span className="inline-block px-3 py-1 rounded-full bg-[#d4f570]/15 border border-[#d4f570]/30 text-[#d4f570] text-xs font-bold">
+                {t.badgeText}
+              </span>
+
+              <h1 className={`font-black font-mono text-white tracking-tight leading-tight ${seniorMode ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'}`}>
                 {t.heroTitlePrefix} <span className="text-[#d4f570]">{t.heroTitleHighlight}</span>
               </h1>
 
@@ -727,13 +703,12 @@ export default function App() {
                 {t.heroSubtitle}
               </p>
 
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-2">
                 <a
                   href="#detector"
-                  className="px-6 py-3.5 rounded-full bg-[#d4f570] hover:bg-[#c3e859] text-[#06231a] font-extrabold text-xs shadow-xl flex items-center space-x-2 transition-all active:scale-95"
+                  className="inline-block px-6 py-3.5 rounded-full bg-[#d4f570] hover:bg-[#c3e859] text-[#06231a] font-extrabold text-xs transition-all active:scale-95"
                 >
-                  <span>Start SMS Analysis</span>
-                  <ArrowRight className="w-4 h-4" />
+                  Start SMS Analysis
                 </a>
               </div>
             </div>
@@ -741,33 +716,50 @@ export default function App() {
 
         </section>
 
-        {/* LOGO STRIP / TRUSTED PLATFORMS */}
-        <section className="text-center space-y-3 pt-2">
-          <p className="text-xs font-semibold text-emerald-400/60 uppercase tracking-widest">
-            {t.trustedByHeader}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 opacity-60 text-emerald-100 font-black text-xs sm:text-sm tracking-wider">
-            <span>GCash</span>
-            <span>Maya</span>
-            <span>BDO Online</span>
-            <span>BPI</span>
-            <span>J&T Express</span>
-            <span>Shopee</span>
-            <span>CICC 1326</span>
+        {/* HOW IT WORKS */}
+        <section className="space-y-6 pt-4">
+          <div className="text-center space-y-1 max-w-2xl mx-auto">
+            <h2 className="font-mono text-xl sm:text-2xl font-black text-white">{t.howItWorksTitle}</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#0b382c] border border-[#145d4a] rounded-2xl p-5 space-y-3">
+              <div className="w-9 h-9 rounded-xl bg-[#d4f570]/15 border border-[#d4f570]/30 flex items-center justify-center text-[#d4f570]">
+                <Clipboard className="w-4 h-4" />
+              </div>
+              <h3 className="font-mono font-bold text-sm text-white">{t.step1Title}</h3>
+              <p className="text-xs text-emerald-300/70 leading-relaxed">{t.step1Desc}</p>
+            </div>
+
+            <div className="bg-[#0b382c] border border-[#145d4a] rounded-2xl p-5 space-y-3">
+              <div className="w-9 h-9 rounded-xl bg-[#d4f570]/15 border border-[#d4f570]/30 flex items-center justify-center text-[#d4f570]">
+                <Search className="w-4 h-4" />
+              </div>
+              <h3 className="font-mono font-bold text-sm text-white">{t.step2Title}</h3>
+              <p className="text-xs text-emerald-300/70 leading-relaxed">{t.step2Desc}</p>
+            </div>
+
+            <div className="bg-[#0b382c] border border-[#145d4a] rounded-2xl p-5 space-y-3">
+              <div className="w-9 h-9 rounded-xl bg-[#d4f570]/15 border border-[#d4f570]/30 flex items-center justify-center text-[#d4f570]">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <h3 className="font-mono font-bold text-sm text-white">{t.step3Title}</h3>
+              <p className="text-xs text-emerald-300/70 leading-relaxed">{t.step3Desc}</p>
+            </div>
           </div>
         </section>
 
-        {/* MAIN SMS DETECTOR TOOL CONTAINER (Erudia Styled) */}
+        {/* MAIN SMS DETECTOR TOOL CONTAINER */}
         <section id="detector" className="space-y-6 pt-4">
-          <div className="bg-[#0b382c] border border-[#145d4a] rounded-[32px] p-6 sm:p-8 space-y-6 shadow-2xl relative">
-            
+          <div className="bg-[#0b382c] border border-[#145d4a] rounded-3xl p-5 sm:p-8 space-y-6">
+
             {/* Header pill tab */}
-            <div className="flex items-center justify-between border-b border-[#135342] pb-4">
-              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-[#06231a] border border-[#175d4a] text-[#d4f570] text-xs font-bold">
+            <div className="flex items-center justify-between border-b border-[#135342] pb-4 gap-2">
+              <div className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-full bg-[#06231a] border border-[#175d4a] text-[#d4f570] text-xs font-bold">
                 <Smartphone className="w-4 h-4" />
                 <span>{t.detectorTab}</span>
               </div>
-              <div className="text-xs text-emerald-300/60 font-mono">
+              <div className="text-xs text-emerald-300/60 font-mono whitespace-nowrap">
                 {inputText.length} / 1600 {t.charLimit}
               </div>
             </div>
@@ -787,16 +779,16 @@ export default function App() {
 
               {/* Action Toolbar */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="flex items-center space-x-2 w-full sm:w-auto">
-                  
+                <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
+
                   {/* Primary Trigger Button */}
                   <button
                     onClick={handleAnalyze}
                     disabled={inputText.trim().length < 5 || isAnalyzing}
-                    className={`px-6 py-3.5 rounded-full font-black text-xs shadow-xl flex items-center justify-center space-x-2 transition-all ${
+                    className={`px-6 py-3.5 rounded-full font-black text-xs flex items-center justify-center space-x-2 transition-all ${
                       inputText.trim().length < 5 || isAnalyzing
                         ? 'bg-[#06231a] text-emerald-800 cursor-not-allowed border border-[#134e3e]'
-                        : 'bg-[#d4f570] hover:bg-[#c3e859] text-[#06231a] active:scale-95 shadow-[#d4f570]/20'
+                        : 'bg-[#d4f570] hover:bg-[#c3e859] text-[#06231a] active:scale-95'
                     }`}
                   >
                     {isAnalyzing ? (
@@ -852,20 +844,20 @@ export default function App() {
             {/* VERDICT ANALYSIS RESULT PANEL */}
             {result && !isAnalyzing && (
               <div className="space-y-4 pt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-                
-                <div className={`p-6 rounded-3xl border shadow-2xl relative overflow-hidden ${
+
+                <div className={`p-5 sm:p-6 rounded-3xl border relative overflow-hidden ${
                   result.verdict === 'Malicious'
                     ? 'bg-rose-950/80 border-rose-500/60 text-rose-100'
                     : result.verdict === 'Spam'
                     ? 'bg-amber-950/80 border-amber-500/60 text-amber-100'
                     : 'bg-[#06231a] border-[#d4f570] text-emerald-100'
                 }`}>
-                  
+
                   <div className="flex items-center justify-between gap-4 flex-wrap relative z-10">
                     <div className="flex items-center space-x-4">
                       {result.verdict === 'Malicious' ? (
                         <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-2xl text-rose-400">
-                          <ShieldAlert className="w-9 h-9 animate-pulse" />
+                          <ShieldAlert className="w-9 h-9" />
                         </div>
                       ) : result.verdict === 'Spam' ? (
                         <div className="p-3 bg-amber-500/20 border border-amber-500/50 rounded-2xl text-amber-400">
@@ -881,7 +873,7 @@ export default function App() {
                         <span className="text-[11px] font-mono uppercase tracking-wider opacity-80 block">
                           {t.verdictTitle}
                         </span>
-                        <h2 className={`font-black tracking-tight ${seniorMode ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}`}>
+                        <h2 className={`font-mono font-black tracking-tight ${seniorMode ? 'text-3xl sm:text-4xl' : 'text-xl sm:text-3xl'}`}>
                           {result.verdict === 'Malicious' 
                             ? t.verdictMalicious
                             : result.verdict === 'Spam'
@@ -896,7 +888,7 @@ export default function App() {
                       onClick={handleSpeakVerdict}
                       className={`px-4 py-2.5 rounded-full border transition flex items-center space-x-2 ${
                         isSpeaking 
-                          ? 'bg-[#d4f570] text-[#06231a] border-[#d4f570] font-bold animate-pulse' 
+                          ? 'bg-[#d4f570] text-[#06231a] border-[#d4f570] font-bold' 
                           : 'bg-[#06231a] hover:bg-[#0f4435] border-[#175d4a] text-emerald-200'
                       }`}
                     >
@@ -931,8 +923,8 @@ export default function App() {
                 </div>
 
                 {/* Threat Reasons Box */}
-                <div className="bg-[#06231a] border border-[#175d4a] rounded-3xl p-6 space-y-4">
-                  <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
+                <div className="bg-[#06231a] border border-[#175d4a] rounded-3xl p-5 sm:p-6 space-y-4">
+                  <h3 className="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-2">
                     <Search className="w-4 h-4 text-[#d4f570]" />
                     <span>{t.whyFlagged}</span>
                   </h3>
@@ -954,7 +946,7 @@ export default function App() {
                       ? 'bg-amber-950/40 border-amber-500/40 text-amber-200'
                       : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                   }`}>
-                    <h4 className="font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5">
+                    <h4 className="font-mono font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5">
                       <Shield className="w-4 h-4" />
                       <span>{t.actionHeader}</span>
                     </h4>
@@ -971,7 +963,7 @@ export default function App() {
                   {result.verdict === 'Malicious' && (
                     <button
                       onClick={() => setShowReportModal(true)}
-                      className="w-full py-3.5 px-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm flex items-center justify-center space-x-2 transition shadow-lg active:scale-95"
+                      className="w-full py-3.5 px-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm flex items-center justify-center space-x-2 transition active:scale-95"
                     >
                       <AlertOctagon className="w-4 h-4" />
                       <span>{t.reportScamBtn}</span>
@@ -983,9 +975,8 @@ export default function App() {
 
             {/* QUICK SAMPLE TEST CARDS */}
             <div className="space-y-3 pt-2">
-              <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#d4f570]" />
-                <span>{t.samplesTitle}</span>
+              <h3 className="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                {t.samplesTitle}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -1020,10 +1011,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* SECTION 4: SCAM TAXONOMY GUIDE */}
+        {/* SECTION: SCAM TAXONOMY GUIDE */}
         <section id="scam-guide" className="space-y-6 pt-4">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center space-x-2">
+            <h2 className="font-mono text-xl sm:text-2xl font-black text-white flex items-center space-x-2">
               <BookOpen className="w-6 h-6 text-[#d4f570]" />
               <span>{t.guideSectionTitle}</span>
             </h2>
@@ -1036,7 +1027,7 @@ export default function App() {
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-[10px] font-mono font-bold text-[#d4f570] uppercase tracking-wider">{item.type}</span>
-                    <h3 className="font-bold text-white text-base mt-0.5">{item.title}</h3>
+                    <h3 className="font-mono font-bold text-white text-base mt-0.5">{item.title}</h3>
                   </div>
                 </div>
 
@@ -1065,11 +1056,11 @@ export default function App() {
           </div>
         </section>
 
-        {/* SECTION 5: FAQ ACCORDION */}
+        {/* SECTION: FAQ ACCORDION */}
         <section id="faq" className="space-y-4 pt-4">
           <div className="text-center space-y-1">
             <span className="text-xs font-bold text-[#d4f570] uppercase tracking-widest">Help & FAQ</span>
-            <h2 className="text-xl sm:text-2xl font-black text-white">{t.faqTitle}</h2>
+            <h2 className="font-mono text-xl sm:text-2xl font-black text-white">{t.faqTitle}</h2>
           </div>
 
           <div className="space-y-2.5">
@@ -1080,7 +1071,7 @@ export default function App() {
               },
               {
                 q: 'What happens if I receive a message in Visayan or Cebuano?',
-                a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because RoBERTa-Tagalog is optimized for Tagalog, Taglish, and English text.'
+                a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because the detector is optimized for Tagalog, Taglish, and English text.'
               },
               {
                 q: 'Is my phone number or SMS text stored on a server?',
@@ -1110,7 +1101,7 @@ export default function App() {
       {/* EMERGENCY REPORTING MODAL */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b382c] border border-[#145d4a] rounded-[32px] max-w-md w-full p-6 space-y-5 relative shadow-2xl">
+          <div className="bg-[#0b382c] border border-[#145d4a] rounded-3xl max-w-md w-full p-6 space-y-5 relative">
             <button
               onClick={() => setShowReportModal(false)}
               className="absolute top-4 right-4 text-emerald-400 hover:text-white"
@@ -1123,7 +1114,7 @@ export default function App() {
                 <AlertOctagon className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">{t.modalTitle}</h3>
+                <h3 className="font-mono text-base font-bold text-white">{t.modalTitle}</h3>
                 <p className="text-xs text-emerald-300/70">{t.modalSub}</p>
               </div>
             </div>
@@ -1169,19 +1160,9 @@ export default function App() {
       )}
 
       {/* FOOTER */}
-      <footer className="border-t border-[#134e3e] bg-[#041a13] py-8 text-center text-xs text-emerald-400/60 space-y-2">
-        <p className="font-semibold text-emerald-200/80">{t.footerThesis}</p>
-        <p className="text-[11px] text-emerald-400/50 max-w-xl mx-auto px-4">{t.footerAuthors}</p>
+      <footer className="border-t border-[#134e3e] bg-[#041a13] py-8 text-center text-xs text-emerald-400/60">
+        <p>&copy; 2026 Bantay-Bait. All rights reserved.</p>
       </footer>
     </div>
-  );
-}
-
-// Simple helper icon for Senior Citizens card
-function HeartIcon(props) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.684a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-    </svg>
   );
 }
