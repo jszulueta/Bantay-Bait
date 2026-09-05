@@ -68,9 +68,10 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODELS = [
     m.strip() for m in os.getenv(
         "GROQ_MODELS",
-        "llama-3.1-8b-instant,"
-        "llama-3.3-70b-versatile,"
-        "openai/gpt-oss-20b"
+        "openai/gpt-oss-20b,"
+        "openai/gpt-oss-120b,"
+        "qwen/qwen3.6-27b,"
+        "meta-llama/llama-4-scout-17b-16e-instruct"
     ).split(",") if m.strip()
 ]
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -267,8 +268,20 @@ async def _try_one_model(client: httpx.AsyncClient, headers: dict, model: str, t
             {"role": "user", "content": text},
         ],
         "temperature": 0.1,
-        "max_tokens": 150,
+        # Reasoning models (gpt-oss, qwen3.x) spend tokens on internal
+        # chain-of-thought before writing the final answer. A small
+        # max_tokens value can cut them off mid-thought, before they ever
+        # reach the JSON output, causing a "Failed to validate JSON" error
+        # that has nothing to do with the prompt itself. max_completion_tokens
+        # is Groq's documented parameter name (distinct from the legacy
+        # "max_tokens") and 1024 leaves generous headroom for reasoning.
+        "max_completion_tokens": 1024,
         "response_format": {"type": "json_object"},
+        # Ask reasoning-capable models to drop their thinking trace and
+        # return only the final answer, avoiding the documented conflict
+        # between raw reasoning output and strict JSON mode. Non-reasoning
+        # models are expected to just ignore this field.
+        "reasoning_format": "hidden",
     }
     resp = await client.post(GROQ_API_URL, headers=headers, json=payload)
     resp.raise_for_status()
