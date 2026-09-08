@@ -212,7 +212,7 @@ async def get_samples(limit: int = 6):
     per_class = max(1, limit // 3)
     for label in ["safe", "spam", "malicious"]:
         pool = by_label.get(label, [])
-        out.extend(random.sample(pool, min(per_class, len(pool))))
+            out.extend(random.sample(pool, min(per_class, len(pool))))  # nosec B311 -- non-cryptographic use: selects illustrative UI sample messages only, not security-sensitive (no tokens/secrets/credentials involved). Seeded deterministically (random.seed(7)) so the same samples display consistently, which is an intentional UX choice incompatible with a cryptographically-secure RNG.
     return {"samples": out[:limit]}
 
 
