@@ -212,9 +212,8 @@ async def get_samples(limit: int = 6):
     per_class = max(1, limit // 3)
     for label in ["safe", "spam", "malicious"]:
         pool = by_label.get(label, [])
-            out.extend(random.sample(pool, min(per_class, len(pool))))  # nosec B311 -- non-cryptographic use: selects illustrative UI sample messages only, not security-sensitive (no tokens/secrets/credentials involved). Seeded deterministically (random.seed(7)) so the same samples display consistently, which is an intentional UX choice incompatible with a cryptographically-secure RNG.
+        out.extend(random.sample(pool, min(per_class, len(pool))))  # nosec B311 -- non-cryptographic use, UI sample selection only
     return {"samples": out[:limit]}
-
 
 def _extract_json_object(raw: str) -> dict:
     """With response_format=json_object, `raw` should already be pure JSON.
