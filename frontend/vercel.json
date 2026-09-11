@@ -35,7 +35,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "*"
+          "value": "https://bantay-bait.vercel.app"
         },
         {
           "key": "Cache-Control",
