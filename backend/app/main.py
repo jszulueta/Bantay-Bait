@@ -64,7 +64,7 @@ from pydantic import BaseModel, Field
 # ----------------------------------------------------------------------
 # Config (all from environment variables -- nothing secret hardcoded)
 # ----------------------------------------------------------------------
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 GROQ_MODELS = [
     m.strip() for m in os.getenv(
         "GROQ_MODELS",
@@ -297,11 +297,9 @@ async def _try_one_model(client: httpx.AsyncClient, headers: dict, model: str, t
 
 
 async def call_groq(text: str) -> tuple[str, float, int, str]:
-    """Tries each model in GROQ_MODELS in order until one succeeds. Returns
-    (verdict_label, confidence, latency_ms, model_used). Raises
-    HTTPException only if every candidate fails -- and when that happens,
-    the error lists EVERY attempt's specific failure, not just the last
-    one, so a bad deploy is diagnosable from the error message alone."""
+    if MOCK_MODE:
+        return "safe", 0.95, 5, "mock-model"
+
     if not GROQ_API_KEY:
         raise HTTPException(status_code=503, detail="Server misconfigured: GROQ_API_KEY not set.")
 
