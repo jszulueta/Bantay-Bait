@@ -64,6 +64,7 @@ from pydantic import BaseModel, Field
 # ----------------------------------------------------------------------
 # Config (all from environment variables -- nothing secret hardcoded)
 # ----------------------------------------------------------------------
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 GROQ_MODELS = [
     m.strip() for m in os.getenv(
@@ -71,7 +72,7 @@ GROQ_MODELS = [
         "openai/gpt-oss-20b,"
         "openai/gpt-oss-120b,"
         "qwen/qwen3.6-27b,"
-        "meta-llama/llama-4-scout-17b-16e-instruct"
+        "qwen/qwen3.8-27b"
     ).split(",") if m.strip()
 ]
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
