@@ -768,6 +768,9 @@ export default function App() {
             {/* Input Text Area */}
             <div className="space-y-4">
               <textarea
+                id="sms-input"
+                name="sms"
+                autoComplete="off"
                 ref={textAreaRef}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value.slice(0, 1600))}
