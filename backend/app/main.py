@@ -113,7 +113,7 @@ STRONG scam evidence (any one is enough for "malicious"):
 WEAK evidence (never enough on its own): urgent wording, a bank/wallet/courier name, the words OTP/account/verify, a phone number, a threat such as "account will be locked".
 
 Evidence of a legitimate message:
-- Reports something that already happened (login, trusted device, payment, cash-in, transfer) and asks for nothing except, at most, "if this wasn't you, contact the official app/hotline".
+- Reports something that already happened (login, trusted device, payment, cash-in, transfer) and asks for nothing except, at most, "if this wasn't you, contact the official app/hotline". A phone number in such a notice is a hotline for the reader's own use, not a callback scam, unless the message ALSO shows strong scam evidence.
 - Warns the reader NOT to share their OTP/PIN. This counts only when the message has no strong scam evidence: scammers copy this sentence, so a message that warns about OTPs but also pushes a link or asks for the code is still "malicious".
 - Contains a one-time code meant for the reader's own login or payment.
 
