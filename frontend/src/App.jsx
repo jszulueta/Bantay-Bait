@@ -53,7 +53,7 @@ const TRANSLATIONS = {
     charLimit: 'chars',
     samplesTitle: 'Try Sample SMS (1-Tap Test):',
     verdictTitle: 'ANALYSIS RESULT',
-    verdictMalicious: 'DANGEROUS (SCAM)',
+    verdictMalicious: 'MALICIOUS (SCAM)',
     verdictSpam: 'PROMOTIONAL SPAM',
     verdictSafe: 'SAFE MESSAGE',
     confidenceLabel: 'AI Model Confidence:',
@@ -71,7 +71,7 @@ const TRANSLATIONS = {
     whyBantaySub: 'Built through research at Mapua University to help Filipinos spot digital scams using localized NLP.',
     limitationNotice: 'Know the limitations of AI tools: While our detector is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
-    pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
+    pillar1Desc: 'Reads code-switched Tagalog and English (Taglish) messages and looks for the patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
     pillar2Desc: 'Copy-paste workflow eliminates the risk of accidentally clicking phishing links in your SMS inbox.',
     pillar3Title: 'Privacy-First (RA 10173)',
@@ -123,7 +123,7 @@ const TRANSLATIONS = {
     charLimit: 'letra',
     samplesTitle: 'Subukan ang Halimbawang SMS (1-Pindot):',
     verdictTitle: 'RESULTA NG PAGSURI',
-    verdictMalicious: 'PANGANIB (SCAM)',
+    verdictMalicious: 'MALICIOUS (SCAM)',
     verdictSpam: 'PROMOTIONAL SPAM',
     verdictSafe: 'LIGTAS NA MENSAHE',
     confidenceLabel: 'Katiyakan ng AI Model:',
@@ -141,7 +141,7 @@ const TRANSLATIONS = {
     whyBantaySub: 'Binuo gamit ang pananaliksik sa Mapua University upang tulungan ang bawat Pilipino laban sa digital fraud.',
     limitationNotice: 'Alamin ang limitasyon ng AI: Bagama\'t nakatutok ang aming detector sa Tagalog at Taglish, ang mga mensaheng may rehiyonal na diyalekto (Visayan, Ilocano) ay maaaring magkaroon ng mas mababang confidence score.',
     pillar1Title: 'Taglish-Aware NLP AI',
-    pillar1Desc: 'Sadyang sinanay para sa wikang Tagalog at English na ginagamit sa smishing sa Pilipinas.',
+    pillar1Desc: 'Nauunawaan ang halo ng Tagalog at English (Taglish) at hinahanap ang mga pattern na ginagamit sa smishing sa Pilipinas.',
     pillar2Title: 'Iwas sa Maling Pagpindot ng Link',
     pillar2Desc: 'Copy-paste workflow upang hindi mo na kailangang i-click ang delikadong link sa iyong inbox.',
     pillar3Title: 'Proteksyon sa Privacy (RA 10173)',
@@ -193,7 +193,7 @@ const TRANSLATIONS = {
     charLimit: 'chars',
     samplesTitle: 'Try Sample SMS (1-Tap Test):',
     verdictTitle: 'ANALYSIS RESULT',
-    verdictMalicious: 'DANGEROUS (SCAM)',
+    verdictMalicious: 'MALICIOUS (SCAM)',
     verdictSpam: 'PROMOTIONAL SPAM',
     verdictSafe: 'SAFE MESSAGE',
     confidenceLabel: 'AI Model Confidence:',
@@ -211,7 +211,7 @@ const TRANSLATIONS = {
     whyBantaySub: 'Built through research at Mapua University to help Filipinos spot digital scams using localized NLP.',
     limitationNotice: 'Know the limitations of AI tools: While our detector is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
     pillar1Title: 'Taglish-Aware NLP AI',
-    pillar1Desc: 'Specifically trained on code-switched Tagalog and English text patterns used in Philippine smishing.',
+    pillar1Desc: 'Reads code-switched Tagalog and English (Taglish) messages and looks for the patterns used in Philippine smishing.',
     pillar2Title: 'Prevents Accidental Link Taps',
     pillar2Desc: 'Copy-paste workflow eliminates the risk of accidentally clicking phishing links in your SMS inbox.',
     pillar3Title: 'Privacy-First (RA 10173)',
@@ -478,7 +478,7 @@ export default function App() {
   const API_BASE_URL =
     (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) ||
     (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_BASE_URL) ||
-    'https://bantay-bait-api.onrender.com';
+    'https://bantay-bait.onrender.com';
 
   const [analyzeError, setAnalyzeError] = useState(null);
 
@@ -577,7 +577,7 @@ export default function App() {
       if (result.verdict === 'Malicious') {
         speechText = lang === 'english' 
           ? 'Warning! This message is identified as a Scam or Malicious. Do not click links or give your OTP.'
-          : 'Babala! Ang mensaheng ito ay isang Scam o Panganib. Huwag i-click ang link at huwag ibigay ang iyong OTP.';
+          : 'Babala! Ang mensaheng ito ay isang Scam o Malicious. Huwag i-click ang link at huwag ibigay ang iyong OTP.';
       } else if (result.verdict === 'Spam') {
         speechText = lang === 'english' 
           ? 'Notice. This message is identified as Promotional Spam.' 
