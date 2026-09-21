@@ -78,6 +78,10 @@ def main() -> int:
     ap.add_argument("--delay", type=float, default=2.0, help="seconds between requests (free-tier rate limits)")
     args = ap.parse_args()
 
+    # Model replies can contain characters (e.g. non-breaking hyphens) that
+    # the Windows console's default code page cannot print.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     failures = 0
     with httpx.Client(timeout=60) as client:
         for n, (label, text, ok) in enumerate(CASES):
