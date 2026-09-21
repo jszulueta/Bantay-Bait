@@ -39,76 +39,6 @@ if (typeof globalThis !== 'undefined') {
 }
 
 const TRANSLATIONS = {
-  taglish: {
-    heroTitlePrefix: 'Start navigating',
-    heroTitleHighlight: 'your mobile security.',
-    heroSubtitle: 'Bantay-Bait checks suspicious SMS messages for scams in seconds. Built for Taglish, Tagalog, and English text.',
-    badgeText: 'Philippine Smishing Protection',
-    detectorTab: 'SMS Smishing Detector',
-    inputPlaceholder: 'Paste suspected SMS text here (e.g., GCash OTP harvesting, BDO locked account, J&T parcel fee, Shopee job offer)...',
-    clearBtn: 'Clear text',
-    pasteBtn: 'Paste Text',
-    analyzeBtn: 'Detect SMS Scam',
-    analyzingBtn: 'Analyzing SMS...',
-    charLimit: 'chars',
-    samplesTitle: 'Try Sample SMS (1-Tap Test):',
-    verdictTitle: 'ANALYSIS RESULT',
-    verdictMalicious: 'MALICIOUS (SCAM)',
-    verdictSpam: 'PROMOTIONAL SPAM',
-    verdictSafe: 'SAFE MESSAGE',
-    confidenceLabel: 'AI Model Confidence:',
-    detectedLangLabel: 'Language:',
-    listenBtn: 'Listen',
-    stopListenBtn: 'Stop',
-    whyFlagged: 'Why was this flagged by Bantay-Bait?',
-    actionHeader: 'Recommended Action:',
-    reportScamBtn: 'Report to CICC Hotline 1326',
-    privacyNotice: 'Privacy Guaranteed: Your phone number and text are never stored (RA 10173 Data Privacy Act).',
-    seniorModeOn: 'Senior Mode: ON',
-    seniorModeOff: 'Senior Mode A+',
-    trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
-    whyBantayTitle: 'Why Choose Bantay-Bait\'s AI Detector',
-    whyBantaySub: 'Built through research at Mapua University to help Filipinos spot digital scams using localized NLP.',
-    limitationNotice: 'Know the limitations of AI tools: While our detector is optimized for Tagalog and Taglish, text containing non-standard regional dialects (Visayan, Ilocano) may return reduced confidence scores. Always verify sensitive banking transactions directly.',
-    pillar1Title: 'Taglish-Aware NLP AI',
-    pillar1Desc: 'Reads code-switched Tagalog and English (Taglish) messages and looks for the patterns used in Philippine smishing.',
-    pillar2Title: 'Prevents Accidental Link Taps',
-    pillar2Desc: 'Copy-paste workflow eliminates the risk of accidentally clicking phishing links in your SMS inbox.',
-    pillar3Title: 'Privacy-First (RA 10173)',
-    pillar3Desc: 'No SMS inbox permissions required. Zero personal data stored or transmitted to third parties.',
-    howItWorksTitle: 'Bantay-Bait makes SMS Content Detection fast, reliable, and easy',
-    step1Title: '1. Copy Suspicious Text',
-    step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
-    step2Title: '2. Paste & Analyze',
-    step2Desc: 'Tap the paste button and click Detect SMS Scam to evaluate the message.',
-    step3Title: '3. Get Instant Verdict',
-    step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
-    faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
-    guideSectionTitle: 'Common SMS Scams in the Philippines',
-    guideSectionSub: 'A concise guide to identifying fraudulent SMS messages impersonating banks, e-wallets, and couriers.',
-    disclaimerLowConf: 'Notice: Confidence score is reduced because text may contain a regional dialect. Review carefully.',
-    modalTitle: 'Report Scam to Authorities',
-    modalSub: 'Official Philippine Cybercrime Reporting Channels',
-    copyReport: 'Copy Report Summary',
-    copiedReport: 'Copied!',
-    closeModal: 'Close',
-    footerThesis: 'Bantay-Bait - Mapua University School of IT Thesis Project (2026)',
-    footerAuthors: 'Authors: Jahrivien S. Zulueta, Fatima A. Alhusain, Ma. Erykah Xyza L. Villena | Adviser: Bryan Dimabayao (Check Point)',
-    maliciousAction: 'DO NOT click any link! DO NOT share your 6-digit OTP or PIN. Block this sender immediately.',
-    spamAction: 'Do not reply to promotional messages from unknown senders.',
-    safeAction: 'This message appears safe. Always verify sensitive transactions through official banking apps.',
-    navFeatures: 'Features',
-    navHowItWorks: 'How It Works',
-    navScamGuide: 'Scam Taxonomy',
-    navFAQ: 'FAQ',
-    heroCard1Title: 'Copy and paste SMS text with zero risk',
-    heroCard1Sub: 'Evaluates full text social engineering patterns without requiring you to open or tap dangerous links.',
-    heroCard2Title: 'Tailor your security for GCash, Maya and BDO alerts',
-    heroCard2Sub: 'Detects OTP harvesting and bank account block impersonations instantaneously.',
-    sec2Heading: 'Check a message before you act on it, so you can decide with confidence.',
-    demographicTitle: 'Built for all Filipino mobile users like you',
-    demographicSub: 'Designed to protect university students, working professionals, and senior citizens across Metro Manila and provinces.'
-  },
   tagalog: {
     heroTitlePrefix: 'Simulang protektahan',
     heroTitleHighlight: 'ang iyong mobile security.',
@@ -291,40 +221,6 @@ const PH_SMS_SAMPLES = [
 ];
 
 const SCAM_TAXONOMY_I18N = {
-  taglish: [
-    {
-      id: 'gcash-maya',
-      title: 'GCash / Maya OTP Harvesting',
-      type: 'E-Wallet Scam',
-      desc: 'Nagpapanggap bilang GCash o Maya. Sinasabing ma-deactivate ang account kung hindi ilalagay ang OTP sa link.',
-      redFlags: ['May link sa dulo (.site, .top, .ph)', 'Pinagmamadali ka', 'Hinihingi ang 6-digit OTP o PIN'],
-      tip: 'Tandaan: HINDI magpapadala ng link ang GCash o Maya sa SMS para mag-unblock.'
-    },
-    {
-      id: 'bank-lock',
-      title: 'Pekeng Alerto mula sa Bangko',
-      type: 'Banking Fraud',
-      desc: 'Sinasabing may pumalo o naka-lock ang iyong BDO, BPI, o Metrobank online account.',
-      redFlags: ['Maling URL (hindi bdo.com.ph o bpi.com.ph)', 'Walang pangalan mo sa text', 'Pananakot na isasara ang account'],
-      tip: 'Mag-log in LAMANG sa opisyal na mobile app ng bangko.'
-    },
-    {
-      id: 'parcel-delivery',
-      title: 'Parcel Delivery Fee Scam',
-      type: 'Logistics Fraud',
-      desc: 'May hindi raw maideliver na parcel mula sa J&T o LBC dahil sa kulang na address o maliit na bayad.',
-      redFlags: ['Wala kang inaasahang padala', 'Hinihingan ka ng bayad sa card', 'Hindi opisyal na website'],
-      tip: 'I-check ang tracking number sa opisyal na Shopping o Courier App.'
-    },
-    {
-      id: 'fake-jobs',
-      title: 'Pekeng Part-time Job Offer',
-      type: 'Job Scam',
-      desc: 'Nangangako ng P1,500 - P5,000 araw-araw para sa simpleng online task o social media likes.',
-      redFlags: ['Galing sa random 11-digit mobile number', 'Pinapalipat ka sa WhatsApp o Telegram', 'Hihingan ka ng paunang deposito'],
-      tip: 'Ang mga totoong kumpanya ay hindi hihingi ng pera para sa trabaho.'
-    }
-  ],
   tagalog: [
     {
       id: 'gcash-maya',
@@ -396,21 +292,6 @@ const SCAM_TAXONOMY_I18N = {
 };
 
 const ANALYSIS_REASONS_I18N = {
-  taglish: {
-    Malicious: [
-      'Naglalaman ng link o humihingi ng iyong sensitibong OTP / PIN.',
-      'Gumagamit ng pananakot at pagmamadali upang kumilos ka agad.',
-      'Tumatugma sa mga kilalang pattern ng GCash, BDO, o Delivery scam sa PH.'
-    ],
-    Spam: [
-      'Naglalaman ng mga alok na discount, promo, o sale.',
-      'Walang nakitang pagnanakaw ng password o OTP.'
-    ],
-    Safe: [
-      'Walang nakitang nakakahinalang link o paghingi ng OTP.',
-      'Pamantayang opisyal o personal na mensahe.'
-    ]
-  },
   tagalog: {
     Malicious: [
       'Naglalaman ng link o humihingi ng iyong OTP o PIN.',
@@ -449,7 +330,7 @@ export default function App() {
   const [result, setResult] = useState(null);
 
   // Settings & Localization
-  const [lang, setLang] = useState('taglish');
+  const [lang, setLang] = useState('english');
   const [seniorMode, setSeniorMode] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
@@ -462,9 +343,9 @@ export default function App() {
 
   const textAreaRef = useRef(null);
 
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.taglish;
-  const currentScamTaxonomy = SCAM_TAXONOMY_I18N[lang] || SCAM_TAXONOMY_I18N.taglish;
-  const currentReasons = ANALYSIS_REASONS_I18N[lang] || ANALYSIS_REASONS_I18N.taglish;
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.english;
+  const currentScamTaxonomy = SCAM_TAXONOMY_I18N[lang] || SCAM_TAXONOMY_I18N.english;
+  const currentReasons = ANALYSIS_REASONS_I18N[lang] || ANALYSIS_REASONS_I18N.english;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -648,12 +529,6 @@ export default function App() {
 
             {/* Language Switcher Toggle */}
             <div className="bg-[#0b3327] border border-[#135a47] rounded-full p-1 flex text-[10px] sm:text-xs font-semibold">
-              <button
-                onClick={() => setLang('taglish')}
-                className={`px-2 sm:px-3 py-1 rounded-full transition ${lang === 'taglish' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}
-              >
-                Taglish
-              </button>
               <button
                 onClick={() => setLang('tagalog')}
                 className={`px-2 sm:px-3 py-1 rounded-full transition ${lang === 'tagalog' ? 'bg-[#d4f570] text-[#06231a] font-black' : 'text-emerald-200 hover:text-white'}`}

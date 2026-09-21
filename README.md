@@ -72,7 +72,7 @@ or fine-tuned by this project, and no message text is stored or logged.**
 
 `verdict` is always one of `safe`, `spam`, `malicious`. `explanation`, `redFlags`
 and `safeSignals` describe the specific message and are written in the UI language
-(English, Tagalog or Taglish).
+(English or Tagalog).
 
 ## Process Rules
 
