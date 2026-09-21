@@ -1,0 +1,10 @@
+__pycache__/
+app/__pycache__/
+.pytest_cache/
+*.pyc
+node_modules/
+run_b_retest_report.html
+unit_test_report.html
+
+# Never commit real secrets
+.env
