@@ -105,6 +105,11 @@ const TRANSLATIONS = {
     guideSectionTitle: 'Mga Karaniwang Scam sa SMS sa Pilipinas',
     guideSectionSub: 'Mabilis na gabay upang matukoy ang mga pekeng mensahe na nagpapanggap bilang bangko o courier.',
     disclaimerLowConf: 'Paalala: Mababa ang confidence score dahil maaaring naglalaman ng rehiyonal na diyalekto. Suriing mabuti.',
+    disclaimerDowngraded: 'Paalala: Mukhang kahina-hinala ang mensaheng ito, pero mababa sa 0.75 ang katiyakan ng AI, kaya ipinapakita itong Spam / Kahina-hinala at hindi Malicious. Mag-ingat at i-verify sa opisyal na channel bago kumilos.',
+    disclaimerBelowThreshold: 'Paalala: Mababa sa 0.75 ang katiyakan ng AI sa resultang ito. Siguraduhin muna sa opisyal na channel bago kumilos.',
+    highlightTitle: 'Mga kahina-hinalang bahagi ng mensahe',
+    highlightLegend: 'Naka-highlight ang mga link, hinihinging code/OTP/PIN, at mga salitang nagmamadali.',
+    visitSite: 'Bisitahin ang website',
     modalTitle: 'I-report ang Scam sa May-Kapangyarihan',
     modalSub: 'Opisyal na Cybercrime Reporting Channels sa Pilipinas',
     copyReport: 'Kopyahin ang Report Text',
@@ -191,6 +196,11 @@ const TRANSLATIONS = {
     guideSectionTitle: 'Common SMS Scams in the Philippines',
     guideSectionSub: 'A concise guide to identifying fraudulent SMS messages impersonating banks, e-wallets, and couriers.',
     disclaimerLowConf: 'Notice: Confidence score is reduced because text may contain a regional dialect. Review carefully.',
+    disclaimerDowngraded: 'Notice: This message looked suspicious, but the AI\'s confidence was below the 0.75 threshold, so it is shown as Spam / Suspicious instead of Malicious. Be careful and verify with the official source before acting.',
+    disclaimerBelowThreshold: 'Notice: The AI\'s confidence in this result is below 0.75. Please double-check with the official source before acting.',
+    highlightTitle: 'Suspicious parts of the message',
+    highlightLegend: 'Highlighted: links, requests for codes/OTP/PIN, and pressure words.',
+    visitSite: 'Visit website',
     modalTitle: 'Report Scam to Authorities',
     modalSub: 'Official Philippine Cybercrime Reporting Channels',
     copyReport: 'Copy Report Summary',
@@ -356,6 +366,51 @@ const ANALYSIS_REASONS_I18N = {
   }
 };
 
+// FR-03: rule-based highlighting of the parts of a Malicious message that carry
+// the scam (links, credential requests, pressure words). Plain pattern matching
+// on the pasted text; nothing is sent anywhere, and the text is rendered as
+// text (never as HTML).
+const HIGHLIGHT_PATTERNS = [
+  /https?:\/\/[^\s]+/g,
+  /\bwww\.[^\s]+/g,
+  /\b(?:[a-z0-9-]+\.)+(?:com|net|org|ph|info|biz|co|io|me|cc|xyz|top|site|online|click|link|live|app|vip|club|shop|store|ly|gg)\b(?:\/[^\s]*)?/g,
+  /\b(?:otp|mpin|pin|password|passcode|cvv|cvc|verification code|security code|card number)\b/gi,
+  /\b(?:within\s+\d+\s*(?:hours?|hrs?|minutes?|mins?|days?)|immediately|urgent(?:ly)?|final notice|last warning|act now|right away|agad|kaagad|ngayon din)\b/gi,
+];
+
+function findSuspiciousRanges(text) {
+  const ranges = [];
+  for (const pattern of HIGHLIGHT_PATTERNS) {
+    for (const m of text.matchAll(pattern)) {
+      ranges.push([m.index, m.index + m[0].length]);
+    }
+  }
+  ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+  const merged = [];
+  for (const r of ranges) {
+    const last = merged[merged.length - 1];
+    if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+    else merged.push([r[0], r[1]]);
+  }
+  return merged;
+}
+
+function HighlightedText({ text }) {
+  const parts = [];
+  let cursor = 0;
+  findSuspiciousRanges(text).forEach(([start, end], i) => {
+    if (start > cursor) parts.push(text.slice(cursor, start));
+    parts.push(
+      <mark key={i} className="bg-rose-500/40 text-rose-50 rounded px-0.5">
+        {text.slice(start, end)}
+      </mark>
+    );
+    cursor = end;
+  });
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
+
 export default function App() {
   const [inputText, setInputText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -445,6 +500,9 @@ export default function App() {
         confidence: data.confidence,
         isRegional: data.isRegionalDialect,
         reducedConfidence: data.reducedConfidence,
+        lowConfidence: data.lowConfidence || false,
+        downgraded: data.downgraded || false,
+        analyzedText: inputText,
         detectedLang:
           data.isRegionalDialect
             ? 'Regional Dialect'
@@ -816,6 +874,14 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* Reduced-confidence Notice (NFR-03): shown below the 0.75 threshold */}
+                  {(result.downgraded || result.lowConfidence) && (
+                    <div className="mt-4 p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs flex items-center space-x-2">
+                      <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>{result.downgraded ? t.disclaimerDowngraded : t.disclaimerBelowThreshold}</span>
+                    </div>
+                  )}
+
                   {/* Confidence Bar */}
                   <div className="mt-5 space-y-1.5 relative z-10">
                     <div className="flex justify-between text-xs font-mono opacity-80">
@@ -832,6 +898,20 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+
+                {/* Highlighted message (FR-03): Malicious verdicts only */}
+                {result.verdict === 'Malicious' && result.analyzedText && (
+                  <div className="bg-[#06231a] border border-rose-500/40 rounded-3xl p-5 sm:p-6 space-y-3">
+                    <h3 className="font-mono text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-400" />
+                      <span>{t.highlightTitle}</span>
+                    </h3>
+                    <p className={`leading-relaxed whitespace-pre-wrap break-words text-emerald-100 ${seniorMode ? 'text-lg' : 'text-sm'}`}>
+                      <HighlightedText text={result.analyzedText} />
+                    </p>
+                    <p className="text-[11px] text-emerald-400/70">{t.highlightLegend}</p>
+                  </div>
+                )}
 
                 {/* Threat Reasons Box */}
                 <div className="bg-[#06231a] border border-[#175d4a] rounded-3xl p-5 sm:p-6 space-y-4">
@@ -1033,11 +1113,24 @@ export default function App() {
                   <span>{t.dialHotline}</span>
                 </p>
                 <p className="text-emerald-400/60 text-xs">Email: report@cicc.gov.ph</p>
+                <a href="https://cicc.gov.ph" target="_blank" rel="noopener noreferrer" className="text-[#d4f570] underline text-xs block">
+                  {t.visitSite}: cicc.gov.ph
+                </a>
               </div>
 
               <div className="p-3.5 bg-[#06231a] rounded-2xl border border-[#175d4a] space-y-0.5 text-xs">
                 <span className="font-bold text-emerald-200">Bangko Sentral ng Pilipinas (BSP)</span>
                 <p className="text-emerald-400/60">Email: consumeraffairs@bsp.gov.ph</p>
+                <a href="https://www.bsp.gov.ph" target="_blank" rel="noopener noreferrer" className="text-[#d4f570] underline block">
+                  {t.visitSite}: bsp.gov.ph
+                </a>
+              </div>
+
+              <div className="p-3.5 bg-[#06231a] rounded-2xl border border-[#175d4a] space-y-0.5 text-xs">
+                <span className="font-bold text-emerald-200">National Privacy Commission (NPC)</span>
+                <a href="https://privacy.gov.ph/file-a-complaint/" target="_blank" rel="noopener noreferrer" className="text-[#d4f570] underline block">
+                  {t.visitSite}: privacy.gov.ph
+                </a>
               </div>
             </div>
 
