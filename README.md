@@ -1,159 +1,211 @@
-# Bantay-Bait — Free-Tier Deployment Package
+# Bantay-Bait
 
-A $0-to-run smishing detection system: React frontend + FastAPI backend +
-Hugging Face Inference API, evaluated against a consolidated Philippine
-SMS corpus built from 6 public datasets.
+A web-based smishing (SMS phishing) checker for Filipino mobile users. Paste a
+suspicious SMS and get one of three verdicts, **Safe**, **Spam** (promotional
+but non-malicious) or **Malicious** (smishing), with a confidence score and a
+short explanation of what in the message led to that verdict.
+
+Bantay-Bait is an IT thesis project. The language analysis is consumed as an
+external, pre-trained inference service (the Groq API). **No model is trained
+or fine-tuned by this project, and no message text is stored or logged.**
+
+| Layer | Technology | Hosting |
+|---|---|---|
+| Frontend | React, Vite, Tailwind CSS | Vercel |
+| Backend | FastAPI (Python 3.11) | Render |
+| Classification | Groq API, pre-trained LLM, driven by a system prompt | external |
 
 ```
-bantay-bait/
+.
 ├── backend/
 │   ├── app/
-│   │   ├── main.py                 <- FastAPI app (/api/v1/detect, /api/v1/samples)
+│   │   ├── main.py                        FastAPI app: /api/v1/detect, /api/v1/samples, /health
 │   │   └── data/
-│   │       ├── stopwords_tl.txt
-│   │       ├── bantay_bait_corpus.csv        (14,023 labeled rows)
-│   │       ├── bantay_bait_test_set.csv      (20% stratified holdout)
-│   │       └── bantay_bait_train_reference.csv
+│   │       ├── stopwords_tl.txt           Filipino stopwords (stopwords-iso)
+│   │       ├── bantay_bait_corpus.csv     consolidated corpus (14,023 rows)
+│   │       ├── bantay_bait_test_set.csv   held-out test set (2,805 rows)
+│   │       └── bantay_bait_reference_pool.csv   remaining rows (11,218)
 │   ├── scripts/
-│   │   └── build_dataset.py        <- re-run this to rebuild the corpus
-│   ├── requirements.txt
-│   └── .env.example
-└── frontend/
-    └── src/App.jsx                 <- your UI, handleAnalyze() now calls the API
+│   │   ├── build_dataset.py               rebuilds the corpus and the split
+│   │   └── check_prompt_cases.py          live check of the classifier on hand-written messages
+│   ├── tests/                             pytest suite (Process Rules, response shaping)
+│   ├── locustfile.py                      Locust load-test script
+│   ├── requirements.txt, runtime.txt, .python-version
+│   └── .env.example                       environment variable reference
+└── frontend/                              Vite + React app (src/App.jsx), vercel.json
 ```
 
----
+## How it works
 
-## 1. What changed vs. the thesis draft
+1. The frontend sends the pasted text to `POST /api/v1/detect`.
+2. The backend validates the length (PR-01), normalizes the text, and detects
+   the language and regional-dialect markers (PR-02).
+3. It asks the Groq model to classify the message. The rules live in
+   `CLASSIFIER_SYSTEM_PROMPT` in `backend/app/main.py`: the model judges what the
+   message *asks the reader to do* (open a link, send an OTP, pay a fee) rather
+   than which words it contains, and lists the evidence it sees before giving a
+   verdict. Links in the text are found by the backend with a plain pattern match
+   and handed to the model as a fact; no URL is ever visited or looked up.
+4. Models are tried in order (`GROQ_MODELS`); if one is rate-limited or fails, the
+   next is used.
+5. A Malicious verdict below 0.75 confidence is reported as Spam/Suspicious (PR-03).
+6. The frontend shows the color-coded verdict, the confidence, the explanation
+   and recommended actions.
 
-The thesis assumes a Hugging Face model that ships an out-of-the-box 3-class
-(Safe/Spam/Malicious) classification head. No such Tagalog-specific model is
-publicly available for free, and the thesis explicitly rules out training one.
-So the backend instead calls a **zero-shot classification** model
-(`joeddav/xlm-roberta-large-xnli`) — still "an existing pre-trained model
-consumed strictly as an external inference service," zero training required,
-and it understands Tagalog/English/Taglish code-switching reasonably well.
-Swap `HF_MODEL` in the environment variables any time a better free option
-shows up — no code changes needed.
+### Response
 
-## 2. Dataset consolidation (Chapter 3 — Treatment of Data)
-
-`backend/scripts/build_dataset.py` merges these 6 sources into one
-deduplicated, 3-class corpus:
-
-| Source | Rows (post-filter) | Native labels |
-|---|---|---|
-| bwandowando — Philippine Spam SMS (Kaggle) | 945 | unlabeled scam dump |
-| Kaggle SMS Spam Dataset (combined_dataset.csv) | 9,338 | ham/spam |
-| Tagalog SMS (Kaggle, tagalog-sms.xlsx) | 2,656 | notifs/otp/gov/ads/spam |
-| mematello/taglish-spam-detection (GitHub) | 438 | ham/spam |
-| Yissuh/Filipino-Spam-SMS-Detection-Model (GitHub) | 574 | ham/spam |
-| AGR-Yes/ScamMessagesPhilippines (GitHub) | 72 | unlabeled scam dump |
-| **Total after dedup + PR-01 length filter** | **14,023** | — |
-
-Class balance after the malicious-pattern heuristic promotion:
-`safe: 10,043 · spam: 3,807 · malicious: 173`.
-
-**Labeling method:** each source's native ham/spam label is mapped to a base
-class, then rows are promoted from `spam` → `malicious` when they match both
-a credential-harvesting/brand-impersonation keyword pattern (OTP, "verify
-your account", GCash/BDO/BPI/Shopee names, etc.) **and** contain a URL — see
-`MALICIOUS_KEYWORDS` / `URL_RE` in `build_dataset.py` for the exact patterns.
-This is a documented heuristic standing in for the thesis's planned
-cybersecurity-SME manual review (Phase 5); treat `bantay_bait_test_set.csv`
-as a *draft* validated test set to be spot-checked, not a final ground truth.
-
-To rebuild after adding new source files:
-```bash
-cd backend
-pip install pandas openpyxl scikit-learn
-python scripts/build_dataset.py
-```
-
-## 3. Backend — `POST /api/v1/detect`
-
-Request:
-```json
-{ "text": "GCash: Your account has been accessed... Verify: http://gcash-verify.com", "lang": "taglish" }
-```
-
-Response:
 ```json
 {
-  "verdict": "malicious",
-  "confidence": 0.91,
-  "detectedLanguage": "taglish",
+  "verdict": "safe",
+  "confidence": 0.93,
+  "detectedLanguage": "english",
   "isRegionalDialect": false,
   "reducedConfidence": false,
-  "reasons": ["Detected credential-harvesting or brand-impersonation language..."],
-  "modelLatencyMs": 812
+  "reasons": ["Informational device notice that asks for nothing."],
+  "modelLatencyMs": 812,
+  "modelUsed": "openai/gpt-oss-20b",
+  "explanation": "Informational device notice that asks for nothing.",
+  "redFlags": [],
+  "safeSignals": ["Reports a trusted device", "Warns never to share the OTP", "No link"]
 }
 ```
 
-Process rules enforced server-side: PR-01 (5–1600 chars), PR-02 (regional
-dialect flag), PR-03 (0.75 confidence floor for a Malicious verdict), PR-04
-(4.5s internal timeout, leaving headroom under the 5s target), PR-05 (no
-database, no logging of message text — see `RedactTextFilter` in `main.py`).
+`verdict` is always one of `safe`, `spam`, `malicious`. `explanation`, `redFlags`
+and `safeSignals` describe the specific message and are written in the UI language
+(English, Tagalog or Taglish).
 
-## 4. Free deployment — $0 total
+## Process Rules
 
-### a) Hugging Face token (free)
-1. Create an account at https://huggingface.co
-2. Go to **Settings → Access Tokens → New token** (Read role is enough)
-3. Copy the token (starts with `hf_...`)
-
-### b) Backend on Render.com (free Web Service)
-1. Push the `backend/` folder to a GitHub repo.
-2. On https://render.com → **New → Web Service** → connect the repo.
-3. Settings:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-   - **Instance Type:** Free
-4. Under **Environment**, add:
-   - `HUGGINGFACE_TOKEN` = your token from step (a)
-   - `HF_MODEL` = `joeddav/xlm-roberta-large-xnli`
-   - `ZERO_SHOT` = `true`
-   - `ALLOWED_ORIGINS` = your frontend URL(s), comma-separated (add these
-     after step (c) once you know the Vercel/Netlify domain)
-5. Deploy. Render gives you a URL like `https://bantay-bait-api.onrender.com`.
-   Test it: `curl https://bantay-bait-api.onrender.com/health`
-
-   Note: Render's free tier spins down after ~15 minutes of inactivity — the
-   first request after idle can take 30–50 seconds to wake up. This is
-   normal and does not cost anything.
-
-### c) Frontend on Vercel (free)
-1. Push `frontend/` to a GitHub repo (or the same repo, different folder).
-2. On https://vercel.com → **Add New → Project** → import the repo.
-3. Add an environment variable:
-   - `VITE_API_BASE_URL` = `https://bantay-bait-api.onrender.com`
-     (use `NEXT_PUBLIC_API_BASE_URL` instead if this is a Next.js app)
-4. Deploy. Vercel gives you a URL like `https://bantay-bait.vercel.app`.
-5. Go back to Render → Environment → update `ALLOWED_ORIGINS` to include
-   this exact Vercel URL, then redeploy the backend.
-
-(Netlify works the same way: **Add new site → Import from Git**, same env
-var, Build command `npm run build`, Publish directory `dist`.)
-
-### d) Smoke test
-```bash
-curl -X POST https://bantay-bait-api.onrender.com/api/v1/detect \
-  -H "Content-Type: application/json" \
-  -d '{"text":"GCash: Your account has been locked. Verify now: http://gcash-verify.com OTP 12345"}'
-```
-Then open the Vercel URL, paste a sample SMS, and confirm the verdict panel
-renders with a live (non-mocked) result.
-
-## 5. Cost summary
-| Service | Tier | Cost |
+| ID | Rule | Where |
 |---|---|---|
-| Render Web Service | Free | $0 |
-| Vercel / Netlify hosting | Free (Hobby) | $0 |
-| Hugging Face Inference API | Free (rate-limited, fine for thesis testing/demo traffic) | $0 |
-| GitHub (source + raw dataset hosting) | Free | $0 |
+| PR-01 | Accept 5 to 1,600 characters only | backend, mirrored in the frontend |
+| PR-02 | Filipino, English and Taglish; messages with regional-dialect markers (Cebuano, Ilocano, Hiligaynon) get a reduced-confidence disclaimer | backend (language and dialect detection) |
+| PR-03 | A Malicious verdict needs at least 0.75 confidence, otherwise it is reported as Spam/Suspicious | backend |
+| PR-04 | No retention: no database, and message text is never written to storage or logs | backend (`RedactTextFilter`) |
+| PR-05 | Verdict display on screens 360 px and wider, meeting WCAG 2.1 AA contrast | frontend |
 
-**Total: $0/month.** The only real constraints are the Render free-tier
-cold-start delay and Hugging Face's free-tier rate limits — both fine for a
-thesis demo/defense but worth mentioning as a limitation if you scale to
-real public traffic.
+## Scope and limits
+
+Not covered: email phishing, voice phishing (vishing), image-based or QR-code
+fraud, regional dialects (Visayan, Cebuano, Hiligaynon, Ilocano), automatic
+interception of incoming SMS, sender-level network verification or SIM-swap
+detection, and legal recourse for victims. The tool judges only the text a user
+pastes. A model verdict is guidance, not proof: always verify sensitive banking
+matters through the official app or website.
+
+## Dataset
+
+`backend/scripts/build_dataset.py` merges six public sources into one
+deduplicated corpus of 14,023 messages (safe 10,043, spam 3,807, malicious 173):
+
+| Source | Rows |
+|---|---|
+| Kaggle SMS Spam Dataset (`combined_dataset.csv`) | 9,338 |
+| Tagalog SMS (Kaggle) | 2,656 |
+| bwandowando, Philippine Spam SMS (Kaggle) | 945 |
+| Yissuh/Filipino-Spam-SMS-Detection-Model (GitHub) | 574 |
+| mematello/taglish-spam-detection (GitHub) | 438 |
+| AGR-Yes/ScamMessagesPhilippines (GitHub) | 72 |
+
+A stratified 80/20 split (`random_state=42`) produces the **test set** (20%, used
+only to measure the accuracy of the deployed system) and the **reference pool**
+(the remaining 80%). Nothing is trained on either file.
+
+The sources use their own labels (mostly ham/spam) or are unlabeled scam dumps, so
+the three-class labels are approximate: each source's label is mapped to safe or spam, and spam messages are
+promoted to malicious when they match the keyword and URL patterns in
+`MALICIOUS_KEYWORDS` and `URL_RE`. Because of this, some corpus labels differ from
+the classifier's definitions (for example, online-gambling promotions are labeled
+malicious in the corpus). Keep the test set for evaluation only and do not tune the
+prompt against it.
+
+Re-running the build script needs `pandas`, `openpyxl` and `scikit-learn` plus the
+raw source files listed in the script header, and it regenerates the split. The
+thesis results were computed on the committed test set, so do not overwrite it
+casually.
+
+## Run locally
+
+Backend (the app reads environment variables directly and does not load a `.env`
+file, so set them in your shell; `backend/.env.example` lists the names):
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+
+# PowerShell: $env:GROQ_API_KEY="gsk_..."   bash: export GROQ_API_KEY=gsk_...
+# Vite serves on 5173, so allow that origin for CORS:
+# PowerShell: $env:ALLOWED_ORIGINS="http://localhost:5173"
+uvicorn app.main:app --reload --port 8000
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+# point the app at your local backend (otherwise it uses its built-in default URL)
+# PowerShell: $env:VITE_API_BASE_URL="http://localhost:8000"
+npm run dev
+```
+
+### Tests
+
+```bash
+cd backend
+pip install pytest pytest-asyncio
+python -m pytest                                   # no network or API key needed
+python scripts/check_prompt_cases.py --url http://localhost:8000   # real model; needs GROQ_API_KEY
+```
+
+The pytest suite replaces the Groq call with test doubles, so it verifies the
+backend's own rules. `check_prompt_cases.py` sends a small set of synthetic
+messages to a running API to see how the real model behaves.
+
+### Load testing
+
+```bash
+cd backend
+pip install locust
+# Start the API with MOCK_MODE=true (PowerShell: $env:MOCK_MODE="true") so the
+# Groq call is skipped and only the backend itself is measured.
+# Use it only for load tests; never enable it in production.
+locust -f locustfile.py --host http://localhost:8000
+```
+
+Avoid load-testing with real inference: the Groq free tier has per-minute and
+daily limits that a sustained test will exhaust.
+
+## Deployment (free tiers)
+
+### Backend on Render
+
+1. Create a **Web Service** from this GitHub repo.
+2. Settings: **Root Directory** `backend`, **Build Command** `pip install -r requirements.txt`,
+   **Start Command** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, **Instance Type** Free.
+3. Environment variables:
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `GROQ_API_KEY` | yes | Key from console.groq.com |
+| `ALLOWED_ORIGINS` | yes | Frontend origin(s), comma-separated, e.g. `https://bantay-bait.vercel.app` |
+| `GROQ_MODELS` | no | Comma-separated fallback chain; the default is set in `main.py` |
+| `MOCK_MODE` | no | `true` skips the Groq call (load testing only) |
+
+Render's free tier sleeps after about 15 minutes idle, so the first request after
+a pause can take 30 to 50 seconds. Check the service with `GET /health`.
+
+### Frontend on Vercel
+
+1. Import the repo with **Root Directory** `frontend`.
+2. Set `VITE_API_BASE_URL` to the backend URL.
+3. `frontend/vercel.json` sets the security headers. Its Content-Security-Policy
+   `connect-src` must list the exact backend origin, so update it if the backend URL changes.
+
+## Limitations of the free tiers
+
+Cold starts on Render, and Groq's rate and daily token limits, which can slow
+or block requests under sustained traffic. Both are fine for a thesis demo and
+worth stating if usage grows.
