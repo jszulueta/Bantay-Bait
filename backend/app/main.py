@@ -44,7 +44,8 @@ Process Rules implemented (Thesis Table 2):
   PR-02  Language handling (Filipino/English/Taglish); regional-dialect
          detection -> reduced-confidence disclaimer
   PR-03  Confidence >= 0.75 required for a "Malicious" verdict, else
-         reported as Spam/Suspicious
+         reported as Spam/Suspicious; any result below 0.75 also carries
+         lowConfidence=true so the UI shows the reduced-confidence notice (NFR-03)
   PR-04  No retention: zero persistence, zero logging of message text
   PR-05  Verdict display (>= 360px, WCAG 2.1 AA) -- front-end rule, not
          enforced in this backend
@@ -254,6 +255,10 @@ class DetectResponse(BaseModel):
     detectedLanguage: str
     isRegionalDialect: bool
     reducedConfidence: bool
+    # NFR-03: True when the final confidence is below the 0.75 threshold, and
+    # `downgraded` marks a Malicious verdict that PR-03 reported as Spam/Suspicious.
+    lowConfidence: bool = False
+    downgraded: bool = False
     reasons: list[str]
     modelLatencyMs: int
     modelUsed: str
@@ -464,8 +469,10 @@ async def detect(req: DetectRequest):
 
     reasons: list[str] = []
     reduced_confidence = is_regional
+    downgraded = False
     if verdict == "malicious" and confidence < MALICIOUS_THRESHOLD:
         verdict = "spam"
+        downgraded = True
         reasons.append("Confidence below the 0.75 threshold required for a Malicious verdict; downgraded to Spam/Suspicious.")
 
     if is_regional:
@@ -488,6 +495,8 @@ async def detect(req: DetectRequest):
         detectedLanguage=detected_lang,
         isRegionalDialect=is_regional,
         reducedConfidence=reduced_confidence,
+        lowConfidence=confidence < MALICIOUS_THRESHOLD,
+        downgraded=downgraded,
         reasons=reasons,
         modelLatencyMs=latency_ms,
         modelUsed=model_used,

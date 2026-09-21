@@ -42,6 +42,27 @@ def test_malicious_above_threshold_stays_malicious():
         })
         assert resp.json()["verdict"] == "malicious"
 
+# ---- NFR-03: reduced-confidence notice below 0.75 ----
+def test_downgraded_malicious_sets_low_confidence_flags():
+    with patch("app.main.call_groq", new=AsyncMock(return_value=("malicious", 0.6, 150, GROQ_MODELS[0]))):
+        body = client.post("/api/v1/detect", json={"text": "borderline scam-like message text", "lang": "en"}).json()
+        assert body["verdict"] == "spam"
+        assert body["downgraded"] is True
+        assert body["lowConfidence"] is True
+
+def test_confident_malicious_has_no_low_confidence_flags():
+    with patch("app.main.call_groq", new=AsyncMock(return_value=("malicious", 0.91, 150, GROQ_MODELS[0]))):
+        body = client.post("/api/v1/detect", json={"text": "GCash: verify now http://gcash-verify.com", "lang": "en"}).json()
+        assert body["downgraded"] is False
+        assert body["lowConfidence"] is False
+
+def test_low_confidence_safe_is_flagged_but_not_downgraded():
+    with patch("app.main.call_groq", new=AsyncMock(return_value=("safe", 0.6, 150, GROQ_MODELS[0]))):
+        body = client.post("/api/v1/detect", json={"text": "see you at the office tomorrow", "lang": "en"}).json()
+        assert body["verdict"] == "safe"
+        assert body["lowConfidence"] is True
+        assert body["downgraded"] is False
+
 # ---- PR-02: regional dialect flag ----
 def test_regional_dialect_flag_sets_reduced_confidence():
     with patch("app.main.call_groq", new=AsyncMock(return_value=("spam", 0.7, 150, GROQ_MODELS[0]))):

@@ -61,6 +61,8 @@ or fine-tuned by this project, and no message text is stored or logged.**
   "detectedLanguage": "english",
   "isRegionalDialect": false,
   "reducedConfidence": false,
+  "lowConfidence": false,
+  "downgraded": false,
   "reasons": ["Informational device notice that asks for nothing."],
   "modelLatencyMs": 812,
   "modelUsed": "openai/gpt-oss-20b",
