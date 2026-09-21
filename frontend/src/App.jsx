@@ -472,13 +472,11 @@ export default function App() {
     }
   }, []);
 
-  // Base URL of the FastAPI backend. Set VITE_API_BASE_URL (Vite) or
-  // NEXT_PUBLIC_API_BASE_URL (Next) as an env var on Vercel/Netlify;
-  // falls back to the deployed Render URL for convenience.
-  const API_BASE_URL =
-    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) ||
-    (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_BASE_URL) ||
-    'https://bantay-bait.onrender.com';
+  // Base URL of the FastAPI backend. Set VITE_API_BASE_URL as an env var on
+  // Vercel; falls back to the deployed Render URL for convenience.
+  // Reference only this one key: a bare `import.meta.env` (or a guard on it)
+  // makes Vite inline the whole env object, including Vercel's git metadata.
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://bantay-bait.onrender.com';
 
   const [analyzeError, setAnalyzeError] = useState(null);
 
