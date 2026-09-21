@@ -84,6 +84,24 @@ const TRANSLATIONS = {
     step3Title: '3. Tingnan ang Resulta',
     step3Desc: 'Kumuha ng malinaw na babala, paliwanag, at gabay kung ano ang dapat gawin.',
     faqTitle: 'Mga Gabay sa Mabisang Paggamit ng SMS Safety Tools',
+    faqLabel: 'Tulong at FAQ',
+    faqItems: [
+      {
+        q: 'Paano ako pinoprotektahan ng copy-paste laban sa phishing links?',
+        a: 'Kapag kinopya mo ang teksto at sinuri ito sa loob ng Bantay-Bait, hindi mo na kailangang i-tap ang kahina-hinalang link sa iyong SMS inbox, kaya naiiwasan ang aksidenteng pagbisita sa mapanganib na website.'
+      },
+      {
+        q: 'Ano ang mangyayari kung makatanggap ako ng mensahe sa Visayan o Cebuano?',
+        a: 'Magpapakita ang Bantay-Bait ng Reduced Confidence Disclaimer dahil ang detector ay nakatutok sa Tagalog, Taglish, at English na teksto.'
+      },
+      {
+        q: 'Sine-save ba sa server ang aking numero o SMS text?',
+        a: 'Hindi. Hindi sine-save ng Bantay-Bait ang iyong mensahe o numero. Sinusuri lang ang teksto at hindi ito isinusulat sa anumang database o log, alinsunod sa RA 10173 (Data Privacy Act).'
+      }
+    ],
+    startBtn: 'Simulan ang Pagsusuri ng SMS',
+    dialHotline: 'Tumawag sa 1326',
+    footerRights: '© 2026 Bantay-Bait. Lahat ng karapatan ay nakalaan.',
     guideSectionTitle: 'Mga Karaniwang Scam sa SMS sa Pilipinas',
     guideSectionSub: 'Mabilis na gabay upang matukoy ang mga pekeng mensahe na nagpapanggap bilang bangko o courier.',
     disclaimerLowConf: 'Paalala: Mababa ang confidence score dahil maaaring naglalaman ng rehiyonal na diyalekto. Suriing mabuti.',
@@ -154,6 +172,24 @@ const TRANSLATIONS = {
     step3Title: '3. Get Instant Verdict',
     step3Desc: 'Receive clear color-coded verdicts, threat explanations, and recommended safety actions.',
     faqTitle: 'Effective Usage Guidelines for SMS Safety Tools',
+    faqLabel: 'Help & FAQ',
+    faqItems: [
+      {
+        q: 'How does copy-paste protect me from phishing links?',
+        a: 'By copying text and analyzing it inside Bantay-Bait, you avoid tapping suspicious links in your SMS inbox (preventing accidental webpage visits).'
+      },
+      {
+        q: 'What happens if I receive a message in Visayan or Cebuano?',
+        a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because the detector is optimized for Tagalog, Taglish, and English text.'
+      },
+      {
+        q: 'Is my phone number or SMS text stored on a server?',
+        a: 'No. Bantay-Bait does not save your message or phone number. The text is only analyzed and is not written to any database or log, in line with RA 10173 (Data Privacy Act).'
+      }
+    ],
+    startBtn: 'Start SMS Analysis',
+    dialHotline: 'Dial 1326',
+    footerRights: '© 2026 Bantay-Bait. All rights reserved.',
     guideSectionTitle: 'Common SMS Scams in the Philippines',
     guideSectionSub: 'A concise guide to identifying fraudulent SMS messages impersonating banks, e-wallets, and couriers.',
     disclaimerLowConf: 'Notice: Confidence score is reduced because text may contain a regional dialect. Review carefully.',
@@ -584,7 +620,7 @@ export default function App() {
                   href="#detector"
                   className="inline-block px-6 py-3.5 rounded-full bg-[#d4f570] hover:bg-[#c3e859] text-[#06231a] font-extrabold text-xs transition-all active:scale-95"
                 >
-                  Start SMS Analysis
+                  {t.startBtn}
                 </a>
               </div>
             </div>
@@ -946,25 +982,12 @@ export default function App() {
         {/* SECTION: FAQ ACCORDION */}
         <section id="faq" className="space-y-4 pt-4">
           <div className="text-center space-y-1">
-            <span className="text-xs font-bold text-[#d4f570] uppercase tracking-widest">Help & FAQ</span>
+            <span className="text-xs font-bold text-[#d4f570] uppercase tracking-widest">{t.faqLabel}</span>
             <h2 className="font-mono text-xl sm:text-2xl font-black text-white">{t.faqTitle}</h2>
           </div>
 
           <div className="space-y-2.5">
-            {[
-              {
-                q: 'How does copy-paste protect me from phishing links?',
-                a: 'By copying text and analyzing it inside Bantay-Bait, you avoid tapping suspicious links in your SMS inbox (preventing accidental webpage visits).'
-              },
-              {
-                q: 'What happens if I receive a message in Visayan or Cebuano?',
-                a: 'Bantay-Bait will display a Reduced Confidence Disclaimer because the detector is optimized for Tagalog, Taglish, and English text.'
-              },
-              {
-                q: 'Is my phone number or SMS text stored on a server?',
-                a: 'No. Bantay-Bait follows RA 10173 Data Privacy Act guidelines. Submitted texts are evaluated in real-time and never logged with phone numbers.'
-              }
-            ].map((item, idx) => (
+            {t.faqItems.map((item, idx) => (
               <div key={idx} className="bg-[#0b382c] border border-[#145d4a] rounded-2xl overflow-hidden">
                 <button
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
@@ -1011,7 +1034,7 @@ export default function App() {
                 <span className="font-bold text-[#d4f570] block">CICC Cybercrime Hotline</span>
                 <p className="text-white text-base font-black flex items-center space-x-2 mt-1">
                   <PhoneCall className="w-4 h-4 text-rose-400" />
-                  <span>Dial 1326</span>
+                  <span>{t.dialHotline}</span>
                 </p>
                 <p className="text-emerald-400/60 text-xs">Email: report@cicc.gov.ph</p>
               </div>
@@ -1048,7 +1071,7 @@ export default function App() {
 
       {/* FOOTER */}
       <footer className="border-t border-[#134e3e] bg-[#041a13] py-8 text-center text-xs text-emerald-400/60">
-        <p>&copy; 2026 Bantay-Bait. All rights reserved.</p>
+        <p>{t.footerRights}</p>
       </footer>
     </div>
   );
