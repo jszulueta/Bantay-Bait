@@ -543,6 +543,9 @@ export default function App() {
             ? 'Tagalog'
             : 'English',
         reasons: data.reasons || [],
+        explanation: data.explanation || '',
+        redFlags: data.redFlags || [],
+        safeSignals: data.safeSignals || [],
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
     } catch (err) {
@@ -930,7 +933,15 @@ export default function App() {
                   </h3>
 
                   <ul className="space-y-2 text-xs sm:text-sm text-emerald-200">
-                    {(currentReasons[result.verdict] || []).map((reason, idx) => (
+                    {/* Explanation of THIS message (from the API). The canned
+                        per-verdict text is only a fallback if the API sent none. */}
+                    {(() => {
+                      const specific = [
+                        result.explanation,
+                        ...(result.verdict === 'Safe' ? result.safeSignals : result.redFlags),
+                      ].filter(Boolean);
+                      return specific.length ? specific : currentReasons[result.verdict] || [];
+                    })().map((reason, idx) => (
                       <li key={idx} className="flex items-start space-x-2.5 bg-[#0b382c] p-3 rounded-2xl border border-[#145d4a]">
                         <CheckCircle2 className="w-4 h-4 text-[#d4f570] shrink-0 mt-0.5" />
                         <span className="leading-relaxed">{reason}</span>
