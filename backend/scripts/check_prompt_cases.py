@@ -58,8 +58,8 @@ CASES = [
      "CONGRATULATIONS! You won PHP 500,000 in the PCSO Lucky Draw. To release your prize, send a PHP 2,500 "
      "processing fee to GCash 0917-555-0123.",
      {"malicious"}),
-    ("malicious: fake job -> Telegram",
-     "Shopee hiring: earn P3,000/day just liking products. Message our HR on Telegram @shopee_hr_ph to start today.",
+    ("malicious: fake job offer (unrealistic pay)",
+     "Shopee hiring: earn P3,000/day just liking products, no experience needed. Reply YES now to start today.",
      {"malicious"}),
 
     # --- promotional: not a scam, not a personal message -------------------
