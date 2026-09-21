@@ -1,14 +1,14 @@
 """
 Bantay-Bait — Dataset Consolidation Script
 ============================================
-Merges 7 public SMS spam/smishing sources into a single, deduplicated,
+Merges 6 public SMS spam/smishing sources into a single, deduplicated,
 3-class labeled corpus (safe / spam / malicious) for use as the
 Bantay-Bait held-out TEST SET (Thesis Phase 3/4 — accuracy validation only).
 
-IMPORTANT: This dataset is NOT used to train or fine-tune the RoBERTa-Tagalog
-model (per thesis scope, the model is consumed strictly as a pre-trained,
-external Hugging Face Inference API service). It is used only to:
-  1. Benchmark the live Hugging Face API's classification accuracy
+IMPORTANT: This dataset is NOT used to train or fine-tune any model
+(per thesis scope, the classifier is consumed strictly as a pre-trained,
+external Groq API service). It is used only to:
+  1. Benchmark the live API's classification accuracy
      (precision / recall / F1 per class) against known PH-context samples.
   2. Populate the "Try Sample SMS" quick-test buttons in the frontend.
   3. Supply pre/post smishing-identification quiz items.
@@ -37,8 +37,10 @@ they are all binary (ham/spam) or unlabeled scam dumps. We therefore:
      `heuristic_malicious=True` so a human reviewer can spot-check/relabel
      before the corpus is presented as a validated test set.
 
-Output: ../app/data/bantay_bait_corpus.csv  (text, label, source)
-        ../app/data/bantay_bait_test_set.csv (20% stratified holdout)
+Output: ../app/data/bantay_bait_corpus.csv         (text, label, source)
+        ../app/data/bantay_bait_test_set.csv       (20% stratified holdout)
+        ../app/data/bantay_bait_reference_pool.csv (remaining 80%; sample pool,
+                                                    never used to train anything)
 """
 import re
 import pandas as pd
@@ -159,13 +161,13 @@ print(corpus["source"].value_counts())
 corpus.to_csv(OUT / "bantay_bait_corpus.csv", index=False)
 
 # Stratified 80/20 split -> held-out test set for accuracy reporting (Phase 4)
-train_df, test_df = train_test_split(
+reference_df, test_df = train_test_split(  # sklearn's splitting helper; nothing is trained
     corpus, test_size=0.2, stratify=corpus["label"], random_state=42
 )
 test_df.to_csv(OUT / "bantay_bait_test_set.csv", index=False)
-train_df.to_csv(OUT / "bantay_bait_train_reference.csv", index=False)
+reference_df.to_csv(OUT / "bantay_bait_reference_pool.csv", index=False)
 
 print(f"\nSaved:")
 print(f"  {OUT/'bantay_bait_corpus.csv'}          ({len(corpus)} rows)")
 print(f"  {OUT/'bantay_bait_test_set.csv'}        ({len(test_df)} rows, stratified 20% holdout)")
-print(f"  {OUT/'bantay_bait_train_reference.csv'} ({len(train_df)} rows, reference/sample pool)")
+print(f"  {OUT/'bantay_bait_reference_pool.csv'}  ({len(reference_df)} rows, reference/sample pool)")
