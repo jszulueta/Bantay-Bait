@@ -72,9 +72,10 @@ MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 GROQ_MODELS = [
     m.strip() for m in os.getenv(
         "GROQ_MODELS",
+        # qwen/qwen3.6-27b was in this chain but Groq retired it on 2026-09-14
+        # (every call 404'd; the fallback just skipped it), so it is removed here.
         "openai/gpt-oss-20b,"
         "openai/gpt-oss-120b,"
-        "qwen/qwen3.6-27b,"
         "qwen/qwen3.8-27b"
     ).split(",") if m.strip()
 ]
