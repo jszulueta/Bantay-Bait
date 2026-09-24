@@ -74,9 +74,11 @@ GROQ_MODELS = [
         "GROQ_MODELS",
         # qwen/qwen3.6-27b was in this chain but Groq retired it on 2026-09-14
         # (every call 404'd; the fallback just skipped it), so it is removed here.
-        "openai/gpt-oss-20b,"
+        # Ordered by measured accuracy (Section 4.1), best first: qwen3.8-27b
+        # 0.7983, gpt-oss-120b 0.7881, gpt-oss-20b 0.7149.
+        "qwen/qwen3.8-27b,"
         "openai/gpt-oss-120b,"
-        "qwen/qwen3.8-27b"
+        "openai/gpt-oss-20b"
     ).split(",") if m.strip()
 ]
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -276,6 +278,9 @@ app = FastAPI(
     title="Bantay-Bait API",
     description="Free-tier smishing detection API for Filipino mobile users.",
     version="2.2.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.add_middleware(
@@ -445,7 +450,7 @@ async def call_groq(text: str, lang: Optional[str] = "auto") -> tuple[str, float
     logger.error(f"All Groq model candidates failed: {all_errors}")
     raise HTTPException(
         status_code=502,
-        detail=f"All classification models are currently unavailable. Attempts: {all_errors}",
+        detail="All classification models are currently unavailable. Please try again shortly.",
     )
 
 

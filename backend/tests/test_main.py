@@ -92,7 +92,11 @@ def test_all_models_fail_returns_502(monkeypatch):
     with patch("app.main._try_one_model", new=AsyncMock(side_effect=httpx.TimeoutException("timed out"))):
         resp = client.post("/api/v1/detect", json={"text": "any valid length text here", "lang": "en"})
         assert resp.status_code == 502
-        assert "Attempts:" in resp.json()["detail"]
+        # F-07: per-attempt detail (model names, provider error text) stays
+        # server-side in the log, not in the client-facing response.
+        detail = resp.json()["detail"]
+        assert "Attempts:" not in detail
+        assert "currently unavailable" in detail
 
 def test_missing_api_key_returns_503(monkeypatch):
     monkeypatch.setattr("app.main.GROQ_API_KEY", "")
