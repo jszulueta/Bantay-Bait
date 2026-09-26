@@ -166,7 +166,7 @@ const TRANSLATIONS = {
     pillar2Title: 'Prevents Accidental Link Taps',
     pillar2Desc: 'Copy-paste workflow eliminates the risk of accidentally clicking phishing links in your SMS inbox.',
     pillar3Title: 'Privacy-First (RA 10173)',
-    pillar3Desc: 'No SMS inbox permissions required. Zero personal data stored or transmitted to third parties.',
+    pillar3Desc: 'No SMS inbox permissions required. Zero personal data stored. Messages are sent securely to our AI provider for checking and are never saved by Bantay-Bait.',
     howItWorksTitle: 'Bantay-Bait makes SMS Content Detection fast, reliable, and easy',
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
