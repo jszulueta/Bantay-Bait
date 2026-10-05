@@ -90,6 +90,14 @@ def test_login_locks_after_repeated_failures():
     assert resp.status_code == 429
 
 
+def test_lockout_is_per_visitor_not_global():
+    for _ in range(admin.MAX_FAILURES):
+        client.post("/api/v1/admin/login", json={"password": "nope"}, headers={"CF-Connecting-IP": "203.0.113.7"})
+    blocked = client.post("/api/v1/admin/login", json={"password": "test-password"}, headers={"CF-Connecting-IP": "203.0.113.7"})
+    other = client.post("/api/v1/admin/login", json={"password": "test-password"}, headers={"CF-Connecting-IP": "198.51.100.9"})
+    assert blocked.status_code == 429 and other.status_code == 200
+
+
 def test_dashboard_disabled_when_not_configured(monkeypatch):
     monkeypatch.delenv("ADMIN_PASSWORD")
     assert client.post("/api/v1/admin/login", json={"password": "x"}).status_code == 503

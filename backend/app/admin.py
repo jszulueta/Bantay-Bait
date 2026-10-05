@@ -63,10 +63,23 @@ class LoginRequest(BaseModel):
     password: str
 
 
+def client_address(request: Request) -> str:
+    """The visitor's real address. On Render every request arrives through
+    Cloudflare and Render's proxy, so request.client is the proxy; Cloudflare
+    sets CF-Connecting-IP (and overwrites any value a client sends)."""
+    cf = request.headers.get("cf-connecting-ip")
+    if cf:
+        return cf.strip()
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("/login")
 def login(req: LoginRequest, request: Request):
     _secret()  # 503 if not configured
-    who = request.client.host if request.client else "unknown"
+    who = client_address(request)
     count, first = _failures.get(who, (0, time.time()))
     if count >= MAX_FAILURES and time.time() - first < LOCKOUT_SECONDS:
         raise HTTPException(status_code=429, detail="Too many failed attempts. Try again in 15 minutes.")
