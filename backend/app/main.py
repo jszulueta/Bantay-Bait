@@ -46,7 +46,10 @@ Process Rules implemented (Thesis Table 2):
   PR-03  Confidence >= 0.75 required for a "Malicious" verdict, else
          reported as Spam/Suspicious; any result below 0.75 also carries
          lowConfidence=true so the UI shows the reduced-confidence notice (NFR-03)
-  PR-04  No retention: zero persistence, zero logging of message text
+  PR-04  Data minimization: message text never appears in the application
+         logs; the check log (app/store.py) keeps verdict statistics for
+         every check and the masked text of Spam/Malicious messages only,
+         for the administrator dashboard (app/admin.py)
   PR-05  Verdict display (>= 360px, WCAG 2.1 AA) -- front-end rule, not
          enforced in this backend
 """
@@ -60,9 +63,12 @@ from pathlib import Path
 from typing import Literal, Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+from app import store
+from app.admin import router as admin_router
 
 # ----------------------------------------------------------------------
 # Config (all from environment variables -- nothing secret hardcoded)
@@ -288,8 +294,9 @@ app.add_middleware(
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+app.include_router(admin_router)
 
 
 @app.get("/health")
@@ -455,7 +462,7 @@ async def call_groq(text: str, lang: Optional[str] = "auto") -> tuple[str, float
 
 
 @app.post("/api/v1/detect", response_model=DetectResponse)
-async def detect(req: DetectRequest):
+async def detect(req: DetectRequest, background_tasks: BackgroundTasks):
     raw = req.text or ""
 
     if len(raw.strip()) < MIN_LEN:
@@ -494,6 +501,15 @@ async def detect(req: DetectRequest):
         reasons.append("Detected promotional/advertising language without a direct fraud request.")
     else:
         reasons.append("No smishing or spam indicators detected.")
+
+    # Admin dashboard check log: runs after the response is sent, so it never
+    # delays or breaks the user's result. Load tests (MOCK_MODE) are not logged.
+    if not MOCK_MODE:
+        background_tasks.add_task(
+            store.record_check, text=text, verdict=verdict, confidence=confidence, language=detected_lang,
+            regional=is_regional, downgraded=downgraded, links=extract_links(text),
+            model_used=model_used, latency_ms=latency_ms,
+        )
 
     return DetectResponse(
         verdict=verdict,  # type: ignore

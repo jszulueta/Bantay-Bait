@@ -63,7 +63,7 @@ const TRANSLATIONS = {
     whyFlagged: 'Bakit ito binigyang-babala ng Bantay-Bait?',
     actionHeader: 'Dapat Mong Gawin:',
     reportScamBtn: 'I-report sa CICC Hotline 1326',
-    privacyNotice: 'Ligtas sa Privacy: Hindi iniimbak ang iyong numero o mensahe (RA 10173 Data Privacy Act).',
+    privacyNotice: 'Privacy (RA 10173): Hindi namin kinukuha ang iyong numero. Ang mga mensaheng Spam o Malicious ay itinatala nang walang personal na detalye para masubaybayan ang mga scam.',
     seniorModeOn: 'Senior Mode: Naka-ON',
     seniorModeOff: 'Senior Mode A+',
     trustedByHeader: 'Pinoprotektahan ang mga transaksyon sa mga sikat na apps sa Pilipinas',
@@ -75,7 +75,7 @@ const TRANSLATIONS = {
     pillar2Title: 'Iwas sa Maling Pagpindot ng Link',
     pillar2Desc: 'Copy-paste workflow upang hindi mo na kailangang i-click ang delikadong link sa iyong inbox.',
     pillar3Title: 'Proteksyon sa Privacy (RA 10173)',
-    pillar3Desc: 'Walang inbox permissions at walang personal na datos na ina-access o iniimbak sa server.',
+    pillar3Desc: 'Walang inbox permissions at hindi kinukuha ang iyong numero. Ang mga Safe na mensahe ay binibilang lang; ang mga Spam at Malicious ay itinatala nang tinanggal ang mga numero, email, at code.',
     howItWorksTitle: 'Ginagawang mabilis, maaasahan, at madali ng Bantay-Bait ang pagsusuri ng SMS',
     step1Title: '1. Kopyahin ang SMS',
     step1Desc: 'Kopyahin ang natanggap na kaduda-dudang mensahe sa iyong SMS inbox.',
@@ -96,7 +96,7 @@ const TRANSLATIONS = {
       },
       {
         q: 'Sine-save ba sa server ang aking numero o SMS text?',
-        a: 'Hindi. Hindi sine-save ng Bantay-Bait ang iyong mensahe o numero. Sinusuri lang ang teksto at hindi ito isinusulat sa anumang database o log, alinsunod sa RA 10173 (Data Privacy Act).'
+        a: 'Hindi namin kailanman kinukuha ang iyong numero. Ang mga Safe na mensahe ay binibilang lang at hindi sine-save. Ang mga mensaheng Spam o Malicious ay itinatala nang tinanggal ang mga numero ng telepono, email, at code, para masubaybayan ng administrator ang mga scam sa Pilipinas. Ipinapadala rin ang mensahe sa aming AI provider (Groq) para masuri, at maaari nila itong i-log nang hanggang 30 araw. Alinsunod ito sa RA 10173 (Data Privacy Act).'
       }
     ],
     startBtn: 'Simulan ang Pagsusuri ng SMS',
@@ -154,7 +154,7 @@ const TRANSLATIONS = {
     whyFlagged: 'Why was this flagged by Bantay-Bait?',
     actionHeader: 'Recommended Action:',
     reportScamBtn: 'Report to CICC Hotline 1326',
-    privacyNotice: 'Privacy Guaranteed: Your phone number and text are never stored (RA 10173 Data Privacy Act).',
+    privacyNotice: 'Privacy (RA 10173): We never collect your phone number. Spam and Malicious messages are logged without personal details to track scams.',
     seniorModeOn: 'Senior Mode: ON',
     seniorModeOff: 'Senior Mode A+',
     trustedByHeader: 'Backed by leading Philippine platforms & regulatory standards',
@@ -166,7 +166,7 @@ const TRANSLATIONS = {
     pillar2Title: 'Prevents Accidental Link Taps',
     pillar2Desc: 'Copy-paste workflow eliminates the risk of accidentally clicking phishing links in your SMS inbox.',
     pillar3Title: 'Privacy-First (RA 10173)',
-    pillar3Desc: 'No SMS inbox permissions required. Zero personal data stored. Messages are sent securely to our AI provider for checking and are never saved by Bantay-Bait.',
+    pillar3Desc: 'No SMS inbox permissions required. Your phone number is never collected. Safe messages are only counted; Spam and Malicious messages are logged with phone numbers, emails, and codes removed. Messages are sent securely to our AI provider for checking.',
     howItWorksTitle: 'Bantay-Bait makes SMS Content Detection fast, reliable, and easy',
     step1Title: '1. Copy Suspicious Text',
     step1Desc: 'Copy the suspicious text message received in your mobile SMS inbox.',
@@ -187,7 +187,7 @@ const TRANSLATIONS = {
       },
       {
         q: 'Is my phone number or SMS text stored on a server?',
-        a: 'No. Bantay-Bait does not save your message or phone number. The text is only analyzed and is not written to any database or log, in line with RA 10173 (Data Privacy Act).'
+        a: 'Your phone number is never collected. Safe messages are only counted, never saved. Spam and Malicious messages are logged with phone numbers, emails, and codes removed, so an administrator can track scams in the Philippines. The message is also sent to our AI provider (Groq) for checking, which may log it for up to 30 days. This follows RA 10173 (Data Privacy Act).'
       }
     ],
     startBtn: 'Start SMS Analysis',
