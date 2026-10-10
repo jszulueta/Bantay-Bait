@@ -11,23 +11,37 @@ const LANG_LABEL = { english: 'English', tagalog: 'Tagalog', taglish: 'Taglish',
 const readToken = () => { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch { return ''; } };
 const writeToken = (t) => { try { t ? sessionStorage.setItem(TOKEN_KEY, t) : sessionStorage.removeItem(TOKEN_KEY); } catch { /* storage blocked */ } };
 
+const LOGIN_TIMEOUT_MS = 70000; // a sleeping free-tier server can take about a minute to wake
+const SLOW_HINT_MS = 5000;
+
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [slow, setSlow] = useState(false);
+
+  // Wake the back-end while the administrator types, so the login itself is fast.
+  useEffect(() => { fetch(`${API_BASE_URL}/health`).catch(() => {}); }, []);
+
   const submit = async (e) => {
     e.preventDefault();
-    setBusy(true); setError('');
+    setBusy(true); setError(''); setSlow(false);
+    const ctrl = new AbortController();
+    const abort = setTimeout(() => ctrl.abort(), LOGIN_TIMEOUT_MS);
+    const hint = setTimeout(() => setSlow(true), SLOW_HINT_MS);
     try {
       const r = await fetch(`${API_BASE_URL}/api/v1/admin/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }),
+        signal: ctrl.signal,
       });
       const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(body.detail || `Login failed (${r.status})`);
+      if (!r.ok) throw new Error(body.detail || `Login failed (${r.status}). Please try again.`);
       onLogin(body.token);
     } catch (err) {
-      setError(err.message === 'Failed to fetch' ? 'Could not reach the server. It may be waking up; try again in a minute.' : err.message);
-    } finally { setBusy(false); }
+      if (err.name === 'AbortError') setError('The server took too long to respond. Please try again.');
+      else if (err.message === 'Failed to fetch') setError('Could not reach the server. It may be waking up; try again in a minute.');
+      else setError(err.message);
+    } finally { clearTimeout(abort); clearTimeout(hint); setBusy(false); setSlow(false); }
   };
   return (
     <div className="min-h-screen bg-[#06231a] flex items-center justify-center px-4">
@@ -45,7 +59,8 @@ function Login({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-[#06231a] border border-[#175d4a] rounded-xl px-3.5 py-2.5 text-emerald-100 focus:outline-none focus:ring-2 focus:ring-[#d4f570]" />
         </div>
-        {error && <p className="text-xs text-rose-300 bg-rose-950/40 border border-rose-800/50 rounded-xl px-3 py-2">{error}</p>}
+        {error && <p role="alert" className="text-xs text-rose-300 bg-rose-950/40 border border-rose-800/50 rounded-xl px-3 py-2">{error}</p>}
+        {busy && slow && <p role="status" className="text-xs text-amber-200 bg-amber-950/30 border border-amber-800/40 rounded-xl px-3 py-2">The server is waking up (free hosting). This can take up to a minute.</p>}
         <button type="submit" disabled={!password || busy}
           className="w-full py-3 rounded-full font-black text-xs bg-[#d4f570] text-[#06231a] disabled:opacity-40">
           {busy ? 'Logging in…' : 'Log in'}
