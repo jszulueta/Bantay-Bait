@@ -60,10 +60,11 @@ function Login({ onLogin }) {
             className="w-full bg-[#06231a] border border-[#175d4a] rounded-xl px-3.5 py-2.5 text-emerald-100 focus:outline-none focus:ring-2 focus:ring-[#d4f570]" />
         </div>
         {error && <p role="alert" className="text-xs text-rose-300 bg-rose-950/40 border border-rose-800/50 rounded-xl px-3 py-2">{error}</p>}
+        {!busy && !error && <p className="text-xs text-emerald-300/80 bg-[#06231a] border border-[#175d4a] rounded-xl px-3 py-2">Note: the server runs on free hosting and sleeps when not in use. The first login after a while may take up to a minute while it wakes up.</p>}
         {busy && slow && <p role="status" className="text-xs text-amber-200 bg-amber-950/30 border border-amber-800/40 rounded-xl px-3 py-2">The server is waking up (free hosting). This can take up to a minute.</p>}
         <button type="submit" disabled={!password || busy}
           className="w-full py-3 rounded-full font-black text-xs bg-[#d4f570] text-[#06231a] disabled:opacity-40">
-          {busy ? 'Logging in…' : 'Log in'}
+          {busy ? (slow ? 'Waking up the server…' : 'Logging in…') : 'Log in'}
         </button>
         <a href="/" className="block text-center text-xs text-emerald-400 underline">Back to Bantay-Bait</a>
       </form>
